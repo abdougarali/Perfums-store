@@ -1,0 +1,134 @@
+.section {
+  padding: 100px 20px;
+  background: linear-gradient(to bottom, var(--color-bg-light) 0%, var(--color-bg) 100%);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--color-primary);
+  font-family: var(--font-cairo);
+  letter-spacing: -0.02em;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
+  border-radius: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+.item {
+  text-align: center;
+  padding: 40px 28px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-secondary-light));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.item:hover::before {
+  transform: scaleX(1);
+}
+
+.item:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border);
+}
+
+.icon {
+  font-size: 3.5rem;
+  margin-bottom: 24px;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: var(--transition);
+}
+
+.item:hover .icon {
+  transform: scale(1.1);
+}
+
+.itemTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--color-primary);
+  font-family: var(--font-cairo);
+  letter-spacing: -0.01em;
+}
+
+.itemDescription {
+  font-size: 1.05rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 20px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    margin-bottom: 40px;
+  }
+
+  .title::after {
+    width: 60px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .item {
+    padding: 32px 24px;
+  }
+
+  .icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+
+  .itemTitle {
+    font-size: 1.3rem;
+  }
+}
+

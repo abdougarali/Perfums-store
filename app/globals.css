@@ -1,0 +1,143 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Unisex Perfume Color Palette - Elegant, Sophisticated & Gender-Neutral */
+  --color-primary: #1A2332;
+  --color-primary-dark: #0F1419;
+  --color-primary-light: #2C3E50;
+  --color-secondary: #C9A961;
+  --color-secondary-light: #D4AF37;
+  --color-secondary-dark: #B8941F;
+  --color-accent: #8B7355;
+  --color-accent-light: #A68B6B;
+  --color-bg: #FAF9F7;
+  --color-bg-light: #FFFFFF;
+  --color-bg-gray: #F5F3F0;
+  --color-text: #1A2332;
+  --color-text-light: #5A6B7A;
+  --color-text-lighter: #8A9BAA;
+  --color-border: #E0DDD8;
+  --color-border-light: #F0EDE8;
+  --font-cairo: var(--font-cairo);
+  --shadow-sm: 0 1px 3px rgba(26, 35, 50, 0.08);
+  --shadow-md: 0 4px 12px rgba(26, 35, 50, 0.12);
+  --shadow-lg: 0 8px 24px rgba(26, 35, 50, 0.16);
+  --shadow-xl: 0 16px 48px rgba(26, 35, 50, 0.20);
+  --shadow-accent: 0 4px 20px rgba(201, 169, 97, 0.30);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'kern' 1;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Swiper Navigation Buttons - RTL Support - Professional Design */
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--color-primary) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  width: 32px !important;
+  height: 32px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+  top: 50% !important;
+  margin-top: -16px !important;
+  opacity: 0.8 !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: transparent !important;
+  transform: scale(1.05) !important;
+  color: var(--color-primary-light) !important;
+  opacity: 1 !important;
+}
+
+.swiper-button-next:active,
+.swiper-button-prev:active {
+  transform: scale(0.98) !important;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.swiper-button-next.swiper-button-disabled,
+.swiper-button-prev.swiper-button-disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+/* In RTL, swap next/prev buttons */
+[dir="rtl"] .swiper-button-next {
+  left: 10px !important;
+  right: auto !important;
+}
+
+[dir="rtl"] .swiper-button-prev {
+  right: 10px !important;
+  left: auto !important;
+}
+
+/* Swiper Pagination - Professional Design with Theme Colors */
+.swiper-pagination {
+  position: relative !important;
+  margin-top: 24px !important;
+}
+
+.swiper-pagination-bullet {
+  background-color: var(--color-primary-light) !important;
+  opacity: 0.4 !important;
+  width: 10px !important;
+  height: 10px !important;
+  transition: all 0.3s ease !important;
+  margin: 0 6px !important;
+  border-radius: 50% !important;
+}
+
+.swiper-pagination-bullet:hover {
+  opacity: 0.6 !important;
+  background-color: var(--color-primary) !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: var(--color-secondary) !important;
+  opacity: 1 !important;
+  width: 32px !important;
+  border-radius: 5px !important;
+  box-shadow: 0 2px 8px rgba(201, 169, 97, 0.4) !important;
+}
+

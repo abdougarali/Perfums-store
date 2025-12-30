@@ -1,0 +1,16 @@
+.carouselContainer {
+  margin-top: 60px;
+  padding-top: 40px;
+  position: relative;
+}
+
+.swiperSlide {
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .carouselContainer {
+    margin-top: 40px;
+    padding-top: 30px;
+  }
+}

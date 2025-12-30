@@ -1,0 +1,201 @@
+[
+  {
+    "id": "1",
+    "name": "عطر الفخامة",
+    "description": "عطر فاخر يجمع بين الأناقة والجاذبية",
+    "image": "/images/perfume-1.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 150 },
+      { "size": "50ml", "price": 220 },
+      { "size": "100ml", "price": 350 }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "عطر الأناقة",
+    "description": "عطر أنيق يناسب جميع المناسبات",
+    "image": "/images/perfume-2.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 180 },
+      { "size": "50ml", "price": 260 },
+      { "size": "100ml", "price": 400 }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "عطر الجاذبية",
+    "description": "عطر جذاب برائحة مميزة تدوم طويلاً",
+    "image": "/images/perfume-3.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 200 },
+      { "size": "50ml", "price": 290 },
+      { "size": "100ml", "price": 450 }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "عطر الكلاسيكية",
+    "description": "عطر كلاسيكي برائحة عطرية فريدة",
+    "image": "/images/perfume-4.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 170 },
+      { "size": "50ml", "price": 240 },
+      { "size": "100ml", "price": 380 }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "عطر الحداثة",
+    "description": "عطر عصري برائحة عصرية وجذابة",
+    "image": "/images/perfume-5.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 190 },
+      { "size": "50ml", "price": 270 },
+      { "size": "100ml", "price": 420 }
+    ]
+  },
+  {
+    "id": "6",
+    "name": "عطر الرومانسية",
+    "description": "عطر رومانسي برائحة زهرية ناعمة",
+    "image": "/images/perfume-6.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 160 },
+      { "size": "50ml", "price": 230 },
+      { "size": "100ml", "price": 360 }
+    ]
+  },
+  {
+    "id": "7",
+    "name": "عطر النبلاء",
+    "description": "عطر راقي يعكس الفخامة والتميز",
+    "image": "/images/perfume-7.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 210 },
+      { "size": "50ml", "price": 300 },
+      { "size": "100ml", "price": 480 }
+    ]
+  },
+  {
+    "id": "8",
+    "name": "عطر السحر",
+    "description": "عطر ساحر برائحة ساحرة ومميزة",
+    "image": "/images/perfume-8.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 175 },
+      { "size": "50ml", "price": 250 },
+      { "size": "100ml", "price": 390 }
+    ]
+  },
+  {
+    "id": "9",
+    "name": "عطر الأصالة",
+    "description": "عطر أصيل يجمع بين التراث والحداثة",
+    "image": "/images/perfume-9.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 195 },
+      { "size": "50ml", "price": 280 },
+      { "size": "100ml", "price": 440 }
+    ]
+  },
+  {
+    "id": "10",
+    "name": "عطر الشغف",
+    "description": "عطر شغوف برائحة قوية ومميزة",
+    "image": "/images/perfume-10.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 185 },
+      { "size": "50ml", "price": 265 },
+      { "size": "100ml", "price": 410 }
+    ]
+  },
+  {
+    "id": "11",
+    "name": "عطر الهدوء",
+    "description": "عطر هادئ برائحة ناعمة ومريحة",
+    "image": "/images/perfume-11.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 165 },
+      { "size": "50ml", "price": 235 },
+      { "size": "100ml", "price": 370 }
+    ]
+  },
+  {
+    "id": "12",
+    "name": "عطر القوة",
+    "description": "عطر قوي برائحة مميزة وجذابة",
+    "image": "/images/perfume-12.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 205 },
+      { "size": "50ml", "price": 295 },
+      { "size": "100ml", "price": 470 }
+    ]
+  },
+  {
+    "id": "13",
+    "name": "عطر الحلم",
+    "description": "عطر حالم برائحة ساحرة وناعمة",
+    "image": "/images/perfume-13.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 180 },
+      { "size": "50ml", "price": 255 },
+      { "size": "100ml", "price": 400 }
+    ]
+  },
+  {
+    "id": "14",
+    "name": "عطر الإلهام",
+    "description": "عطر ملهم برائحة فريدة ومميزة",
+    "image": "/images/perfume-14.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 220 },
+      { "size": "50ml", "price": 310 },
+      { "size": "100ml", "price": 490 }
+    ]
+  },
+  {
+    "id": "15",
+    "name": "عطر السعادة",
+    "description": "عطر مبهج برائحة مشرقة وجذابة",
+    "image": "/images/perfume-15.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 170 },
+      { "size": "50ml", "price": 245 },
+      { "size": "100ml", "price": 385 }
+    ]
+  },
+  {
+    "id": "16",
+    "name": "عطر الثقة",
+    "description": "عطر واثق برائحة قوية ومميزة",
+    "image": "/images/perfume-16.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 215 },
+      { "size": "50ml", "price": 305 },
+      { "size": "100ml", "price": 485 }
+    ]
+  },
+  {
+    "id": "17",
+    "name": "عطر الطبيعة",
+    "description": "عطر طبيعي برائحة نقية ومنعشة",
+    "image": "/images/perfume-17.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 190 },
+      { "size": "50ml", "price": 275 },
+      { "size": "100ml", "price": 430 }
+    ]
+  },
+  {
+    "id": "18",
+    "name": "عطر الأبدية",
+    "description": "عطر خالد برائحة كلاسيكية فاخرة",
+    "image": "/images/perfume-18.jpg",
+    "sizes": [
+      { "size": "30ml", "price": 225 },
+      { "size": "50ml", "price": 320 },
+      { "size": "100ml", "price": 500 }
+    ]
+  }
+]
+
