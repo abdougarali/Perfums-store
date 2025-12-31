@@ -53,6 +53,7 @@ export default function ProductCard({ perfume, onSelect, priority = false }: Pro
           onLoad={() => setImageLoading(false)}
           priority={priority}
           loading={priority ? undefined : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
         />
       </div>
       <div className={styles.content}>
