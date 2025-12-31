@@ -9,7 +9,10 @@ export default function Hero() {
     // Track WhatsApp click
     analytics.trackWhatsAppClick('hero')
     
-    const whatsappUrl = `https://wa.me/${storeConfigData.whatsappNumber}`
+    // General message for header/footer
+    const generalMessage = storeConfigData.generalWhatsAppMessage || 'السلام عليكم، أريد الاستفسار عن العطور المتوفرة'
+    const encodedMessage = encodeURIComponent(generalMessage)
+    const whatsappUrl = `https://wa.me/${storeConfigData.whatsappNumber}?text=${encodedMessage}`
     window.open(whatsappUrl, '_blank')
   }
 

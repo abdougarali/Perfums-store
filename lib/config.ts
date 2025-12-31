@@ -6,6 +6,7 @@ interface StoreConfig {
   instagram?: string
   facebook?: string
   googleAnalyticsId?: string
+  generalWhatsAppMessage?: string
 }
 
 export const storeConfigData: StoreConfig = storeConfig
