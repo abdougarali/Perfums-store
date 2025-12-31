@@ -7,9 +7,7 @@ import perfumesData from '@/data/perfumes.json'
 // Load structured data after initial render to not block LCP
 export default function StructuredData() {
   useEffect(() => {
-    // Delay structured data loading to not block LCP
-    const timer = setTimeout(() => {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
     
     // Organization Schema
     const organizationSchema = {
@@ -96,22 +94,21 @@ export default function StructuredData() {
       ...productSchemas,
     ]
 
-      schemas.forEach((schema) => {
-        const script = document.createElement('script')
-        script.type = 'application/ld+json'
-        script.text = JSON.stringify(schema)
-        script.id = `schema-${schema['@type']}`
-        document.head.appendChild(script)
-      })
-    }, 2000) // Load after 2 seconds to not block LCP
+    schemas.forEach((schema) => {
+      const script = document.createElement('script')
+      script.type = 'application/ld+json'
+      script.text = JSON.stringify(schema)
+      script.id = `schema-${schema['@type']}`
+      document.head.appendChild(script)
+    })
 
     // Cleanup
     return () => {
-      clearTimeout(timer)
-      const schemaTypes = ['Organization', 'LocalBusiness', 'WebSite', 'Product']
-      schemaTypes.forEach((type) => {
-        const scripts = document.querySelectorAll(`script[id^="schema-${type}"]`)
-        scripts.forEach((script) => script.remove())
+      schemas.forEach((schema) => {
+        const script = document.getElementById(`schema-${schema['@type']}`)
+        if (script) {
+          script.remove()
+        }
       })
     }
   }, [])
