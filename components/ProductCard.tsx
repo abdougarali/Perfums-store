@@ -49,7 +49,7 @@ export default function ProductCard({ perfume, onSelect }: ProductCardProps) {
         <p className={styles.description}>{perfume.description}</p>
         <div className={styles.priceContainer}>
           {minPrice === maxPrice ? (
-            <span className={styles.price}>{minPrice} ريال</span>
+            <span className={styles.price}>{minPrice} TND</span>
           ) : (
             <span className={styles.price}>حسب الحجم</span>
           )}

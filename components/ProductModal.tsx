@@ -106,7 +106,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     // Track WhatsApp click from modal
     analytics.trackWhatsAppClick('modal')
 
-    const message = `السلام عليكم، نحب نطلب عطر ${product.name} حجم ${selectedSize.size} بسعر ${selectedSize.price} ريال.`
+    const message = `السلام عليكم، نحب نطلب عطر ${product.name} حجم ${selectedSize.size} بسعر ${selectedSize.price} TND.`
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://wa.me/${storeConfigData.whatsappNumber}?text=${encodedMessage}`
     window.open(whatsappUrl, '_blank')
@@ -159,7 +159,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                     }}
                   >
                     <span className={styles.sizeLabel}>{size.size}</span>
-                    <span className={styles.sizePrice}>{size.price} ريال</span>
+                    <span className={styles.sizePrice}>{size.price} TND</span>
                   </button>
                 ))}
               </div>
@@ -168,7 +168,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             {selectedSize && (
               <div className={styles.priceDisplay}>
                 <span className={styles.priceLabel}>السعر:</span>
-                <span className={styles.priceValue}>{selectedSize.price} ريال</span>
+                <span className={styles.priceValue}>{selectedSize.price} TND</span>
               </div>
             )}
 
