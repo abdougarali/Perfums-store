@@ -92,17 +92,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Critical CSS for Hero section - improves FCP and LCP */}
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            body{margin:0;padding:0;font-family:var(--font-cairo),-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background-color:#FAF9F7;color:#1A2332}
-            .hero{background:linear-gradient(135deg,#0F1419 0%,#1A2332 50%,#2C3E50 100%);color:#fff;padding:50px 20px 40px;text-align:center;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-            .hero .container{max-width:900px;margin:0 auto;position:relative;z-index:1}
-            .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:16px;line-height:1.3;letter-spacing:-0.02em;background:linear-gradient(135deg,#fff 0%,#e8e8e8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-            .hero p{font-size:1.1rem;margin-bottom:28px;color:#d0d0d0;font-weight:400;line-height:1.6;max-width:600px;margin-left:auto;margin-right:auto}
-            @media(max-width:768px){.hero{padding:40px 20px 32px}.hero h1{font-size:1.85rem;margin-bottom:12px}.hero p{font-size:0.95rem;margin-bottom:24px}}
-          `
-        }} />
       </head>
       <body className={cairo.variable}>
         <StructuredData />
