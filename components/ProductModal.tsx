@@ -29,7 +29,6 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
   const [mounted, setMounted] = useState(false)
   const bodyOverflowRef = useRef<string | null>(null)
-  const cleanupRef = useRef<(() => void) | null>(null)
 
   // Initialize
   useEffect(() => {
@@ -59,47 +58,20 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     // Set overflow to hidden
     body.style.overflow = 'hidden'
 
-    // Create cleanup function
-    const cleanup = () => {
-      // Use multiple safety checks
-      if (typeof document === 'undefined' || !document.body) {
-        return
-      }
-
-      try {
-        const currentBody = document.body
-        if (currentBody && bodyOverflowRef.current !== null) {
-          currentBody.style.overflow = bodyOverflowRef.current
-          bodyOverflowRef.current = null
-        }
-      } catch (error) {
-        // Silently ignore any errors during cleanup
-        console.warn('Error restoring body overflow:', error)
-      }
-    }
-
-    cleanupRef.current = cleanup
-
+    // Cleanup function - restore original overflow
     return () => {
-      // Use setTimeout to ensure cleanup happens after React finishes
-      const timeoutId = setTimeout(() => {
-        if (cleanupRef.current) {
-          cleanupRef.current()
-          cleanupRef.current = null
-        }
-      }, 0)
-
-      // Also try with requestAnimationFrame as backup
+      // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
-        if (cleanupRef.current) {
-          cleanupRef.current()
-          cleanupRef.current = null
+        try {
+          if (typeof document !== 'undefined' && document.body && bodyOverflowRef.current !== null) {
+            document.body.style.overflow = bodyOverflowRef.current
+            bodyOverflowRef.current = null
+          }
+        } catch (error) {
+          // Silently ignore any errors during cleanup
+          console.warn('Error restoring body overflow:', error)
         }
       })
-
-      return () => {
-        clearTimeout(timeoutId)
-      }
     }
   }, [mounted])
 
@@ -119,16 +91,6 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
       window.removeEventListener('keydown', handleEscape)
     }
   }, [mounted, onClose])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current()
-        cleanupRef.current = null
-      }
-    }
-  }, [])
 
   const handleWhatsAppOrder = () => {
     if (!selectedSize) return
