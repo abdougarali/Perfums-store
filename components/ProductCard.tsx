@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import styles from './ProductCard.module.css'
 import { analytics } from '@/lib/analytics'
@@ -23,6 +24,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ perfume, onSelect }: ProductCardProps) {
+  const [imageLoading, setImageLoading] = useState(true)
   const minPrice = Math.min(...perfume.sizes.map(s => s.price))
   const maxPrice = Math.max(...perfume.sizes.map(s => s.price))
 
@@ -35,13 +37,19 @@ export default function ProductCard({ perfume, onSelect }: ProductCardProps) {
   return (
     <div className={styles.card}>
       <div className={styles.imageContainer}>
+        {imageLoading && (
+          <div className={styles.imagePlaceholder}>
+            <div className={styles.spinner}></div>
+          </div>
+        )}
         <Image
           src={perfume.image}
           alt={perfume.name}
           fill
           className={styles.productImage}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
+          onLoad={() => setImageLoading(false)}
         />
       </div>
       <div className={styles.content}>

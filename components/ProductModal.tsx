@@ -28,11 +28,13 @@ interface ProductModalProps {
 export default function ProductModal({ product, onClose }: ProductModalProps) {
   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
   const bodyOverflowRef = useRef<string | null>(null)
 
   // Initialize
   useEffect(() => {
     setMounted(true)
+    setImageLoading(true) // Reset loading state when product changes
     if (product.sizes.length > 0) {
       setSelectedSize(product.sizes[0])
     }
@@ -128,13 +130,19 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
         <div className={styles.modalContent}>
           <div className={styles.imageSection}>
             <div className={styles.productImage}>
+              {imageLoading && (
+                <div className={styles.imagePlaceholder}>
+                  <div className={styles.spinner}></div>
+                </div>
+              )}
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
                 className={styles.productImageContent}
                 sizes="(max-width: 968px) 100vw, 50vw"
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
+                onLoad={() => setImageLoading(false)}
               />
             </div>
           </div>
