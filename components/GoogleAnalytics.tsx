@@ -21,12 +21,12 @@ export default function GoogleAnalytics() {
     <>
       {/* Google Analytics Scripts */}
       <Script
-        strategy="afterInteractive"
+        strategy="lazyOnload" // Changed to lazyOnload - doesn't block LCP
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
       <Script
         id="google-analytics"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];

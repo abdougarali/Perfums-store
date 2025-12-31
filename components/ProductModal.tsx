@@ -137,12 +137,13 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               )}
               <Image
                 src={product.image}
-                alt={product.name}
+                alt={`${product.name} - ${product.description}`}
                 fill
                 className={styles.productImageContent}
                 sizes="(max-width: 968px) 100vw, 50vw"
                 style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
                 onLoad={() => setImageLoading(false)}
+                priority
               />
             </div>
           </div>

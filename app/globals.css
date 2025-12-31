@@ -40,6 +40,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'kern' 1;
   text-rendering: optimizeLegibility;
+  /* Prevent layout shift during font load */
+  font-display: swap;
 }
 
 a {

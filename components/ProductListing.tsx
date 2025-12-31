@@ -26,11 +26,12 @@ export default function ProductListing() {
         
         {/* Grid Section - First 2 rows */}
         <div className={styles.grid}>
-          {gridProducts.map((perfume) => (
+          {gridProducts.map((perfume, index) => (
             <ProductCard
               key={perfume.id}
               perfume={perfume}
               onSelect={() => setSelectedProduct(perfume)}
+              priority={index < 3} // Priority for first 3 images (above the fold)
             />
           ))}
         </div>
