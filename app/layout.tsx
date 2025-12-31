@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Cairo } from 'next/font/google'
 import './globals.css'
 import storeConfig from '@/data/store-config.json'
@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   description: 'اختر عطرك واطلب مباشرة عبر واتساب - عطور فاخرة لأناقة لا تُقاوم',
   keywords: ['عطور', 'عطور فاخرة', 'عطور أصلية', 'متجر عطور', 'طلب عطر عبر واتساب'],
   authors: [{ name: storeConfig.storeName }],
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: storeConfig.storeName,
     description: 'اختر عطرك واطلب مباشرة عبر واتساب - عطور فاخرة لأناقة لا تُقاوم',
@@ -36,15 +41,16 @@ export const metadata: Metadata = {
     description: 'اختر عطرك واطلب مباشرة عبر واتساب',
     images: ['/og-image.jpg'],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   robots: {
     index: true,
     follow: true,
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 }
 
 export default function RootLayout({
