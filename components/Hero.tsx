@@ -2,9 +2,13 @@
 
 import styles from './Hero.module.css'
 import { storeConfigData } from '@/lib/config'
+import { analytics } from '@/lib/analytics'
 
 export default function Hero() {
   const handleWhatsAppClick = () => {
+    // Track WhatsApp click
+    analytics.trackWhatsAppClick('hero')
+    
     const whatsappUrl = `https://wa.me/${storeConfigData.whatsappNumber}`
     window.open(whatsappUrl, '_blank')
   }

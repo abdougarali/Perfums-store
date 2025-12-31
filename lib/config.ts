@@ -1,4 +1,12 @@
 import storeConfig from '@/data/store-config.json'
 
-export const storeConfigData = storeConfig
+interface StoreConfig {
+  storeName: string
+  whatsappNumber: string
+  instagram?: string
+  facebook?: string
+  googleAnalyticsId?: string
+}
+
+export const storeConfigData: StoreConfig = storeConfig
 

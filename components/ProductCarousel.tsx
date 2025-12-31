@@ -38,7 +38,7 @@ export default function ProductCarousel({ products, onSelect }: ProductCarouselP
         slidesPerGroup={1}
         navigation
         pagination={{ clickable: true }}
-        initialSlide={3}
+        initialSlide={6} // Start at slide number 7 (0-indexed)
         breakpoints={{
           640: {
             slidesPerView: 2,

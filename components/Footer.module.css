@@ -1,7 +1,7 @@
 .footer {
   background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 50%, var(--color-primary-light) 100%);
   color: #ffffff;
-  padding: 80px 20px 40px;
+  padding: 40px 20px 24px;
   position: relative;
   overflow: hidden;
 }
@@ -24,10 +24,10 @@
 }
 
 .content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 48px;
-  margin-bottom: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 .section {
@@ -36,24 +36,24 @@
 }
 
 .storeName {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-family: var(--font-cairo);
   color: var(--color-secondary);
   letter-spacing: -0.01em;
 }
 
 .tagline {
-  font-size: 1.05rem;
+  font-size: 0.9rem;
   color: #d0d0d0;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   color: var(--color-secondary);
   font-family: var(--font-cairo);
 }
@@ -63,8 +63,8 @@
   position: fixed;
   bottom: 30px;
   right: 30px;
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   background: #25d366;
   color: #ffffff;
   border-radius: 50%;
@@ -91,8 +91,8 @@
 }
 
 .whatsappFloatingButton svg {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
 }
 
 @keyframes pulse {
@@ -112,6 +112,8 @@
   flex-direction: row;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .socialLink {
@@ -120,8 +122,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -147,8 +149,8 @@
 }
 
 .socialLink svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   transition: var(--transition);
   position: relative;
   z-index: 1;
@@ -167,38 +169,51 @@
 
 .copyright {
   text-align: center;
-  padding-top: 36px;
+  padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   color: #b0b0b0;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   letter-spacing: 0.01em;
 }
 
 @media (max-width: 768px) {
   .footer {
-    padding: 60px 20px 32px;
+    padding: 32px 20px 20px;
   }
 
   .content {
-    grid-template-columns: 1fr;
-    gap: 36px;
-    margin-bottom: 36px;
+    margin-bottom: 20px;
   }
 
   .storeName {
-    font-size: 1.75rem;
+    font-size: 1.35rem;
+    margin-bottom: 6px;
+  }
+
+  .tagline {
+    font-size: 0.85rem;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .copyright {
+    padding-top: 18px;
+    font-size: 0.8rem;
   }
 
   .whatsappFloatingButton {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     bottom: 20px;
     right: 20px;
   }
 
   .whatsappFloatingButton svg {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
   }
 }
 
