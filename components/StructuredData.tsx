@@ -7,7 +7,17 @@ import perfumesData from '@/data/perfumes.json'
 // Load structured data after initial render to not block LCP
 export default function StructuredData() {
   useEffect(() => {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
+    // Use requestIdleCallback for better performance, fallback to setTimeout
+    const scheduleLoad = (callback: () => void) => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(callback, { timeout: 2000 })
+      } else {
+        setTimeout(callback, 100)
+      }
+    }
+
+    scheduleLoad(() => {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
     
     // Organization Schema
     const organizationSchema = {
@@ -94,19 +104,21 @@ export default function StructuredData() {
       ...productSchemas,
     ]
 
-    schemas.forEach((schema) => {
-      const script = document.createElement('script')
-      script.type = 'application/ld+json'
-      script.text = JSON.stringify(schema)
-      script.id = `schema-${schema['@type']}`
-      document.head.appendChild(script)
+      schemas.forEach((schema) => {
+        const script = document.createElement('script')
+        script.type = 'application/ld+json'
+        script.text = JSON.stringify(schema)
+        script.id = `schema-${schema['@type']}`
+        document.head.appendChild(script)
+      })
     })
 
-    // Cleanup
+    // Cleanup function
     return () => {
-      schemas.forEach((schema) => {
-        const script = document.getElementById(`schema-${schema['@type']}`)
-        if (script) {
+      // Remove all schema scripts on unmount
+      const schemaScripts = document.querySelectorAll('script[type="application/ld+json"]')
+      schemaScripts.forEach((script) => {
+        if (script.id && script.id.startsWith('schema-')) {
           script.remove()
         }
       })

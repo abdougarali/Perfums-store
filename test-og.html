@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Graph Tester - محلي</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .meta-tag {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Open Graph Tester - اختبار محلي</h1>
+    
+    <div class="test-box">
+        <h2>خطوات الاختبار:</h2>
+        <ol>
+            <li>شغّل المشروع: <code>npm run dev</code></li>
+            <li>افتح: <code>http://localhost:3005</code></li>
+            <li>اضغط F12 → Elements → ابحث عن &lt;head&gt;</li>
+            <li>ابحث عن جميع meta tags التي تبدأ بـ <code>og:</code></li>
+        </ol>
+    </div>
+
+    <div class="test-box">
+        <h2>Meta Tags المطلوبة:</h2>
+        <div class="meta-tag">property="og:image"</div>
+        <div class="meta-tag">property="og:image:url"</div>
+        <div class="meta-tag">property="og:image:secure_url"</div>
+        <div class="meta-tag">property="og:image:type"</div>
+        <div class="meta-tag">property="og:image:width"</div>
+        <div class="meta-tag">property="og:image:height"</div>
+        <div class="meta-tag">name="twitter:image"</div>
+    </div>
+
+    <div class="test-box">
+        <h2>أدوات الاختبار بعد النشر:</h2>
+        <button onclick="window.open('https://developers.facebook.com/tools/debug/', '_blank')">
+            Facebook Debugger
+        </button>
+        <button onclick="window.open('https://cards-dev.twitter.com/validator', '_blank')">
+            Twitter Validator
+        </button>
+        <button onclick="window.open('https://www.opengraph.xyz/', '_blank')">
+            Open Graph Preview
+        </button>
+        <button onclick="window.open('https://metatags.io/', '_blank')">
+            Meta Tags Checker
+        </button>
+    </div>
+
+    <div class="test-box">
+        <h2>⚠️ ملاحظات مهمة:</h2>
+        <ul>
+            <li>يجب أن يكون <code>NEXT_PUBLIC_SITE_URL</code> مضبوط في <code>.env.local</code></li>
+            <li>الصورة URL يجب أن يكون <strong>مطلق</strong> (يبدأ بـ https://)</li>
+            <li>WhatsApp يستخدم Cache - قد تحتاج لانتظار 5-10 دقائق</li>
+            <li>استخدم Facebook Debugger لمسح Cache</li>
+        </ul>
+    </div>
+</body>
+</html>

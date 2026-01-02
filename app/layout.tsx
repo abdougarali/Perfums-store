@@ -15,8 +15,8 @@ const cairo = Cairo({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
 
-// Use specific product image for OG image
-const ogImage = '/images/Perfum_img(21).png'
+// Use specific product image for OG image (absolute URL)
+const ogImage = `${siteUrl}/images/Perfum_img(21).png`
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
       {
         url: ogImage,
         width: 1200,
-        height: 630,
+        height: 1200,
         alt: storeConfig.storeName,
       },
     ],
@@ -95,6 +95,22 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        {/* Preload critical product images (first 3) */}
+        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(1).png .png`} />
+        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(2).png`} />
+        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(3).png`} />
+        {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:url" content={ogImage} />
+        <meta property="og:image:secure_url" content={ogImage} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="1200" />
+        <meta property="og:image:alt" content={storeConfig.storeName} />
+        {/* Twitter Card meta tags */}
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:src" content={ogImage} />
+        <meta name="twitter:image:alt" content={storeConfig.storeName} />
       </head>
       <body className={cairo.variable}>
         <StructuredData />
