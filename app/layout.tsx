@@ -15,6 +15,9 @@ const cairo = Cairo({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
 
+// Use specific product image for OG image
+const ogImage = '/images/Perfum_img(21).png'
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -44,7 +47,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     images: [
       {
-        url: '/og-image.jpg',
+        url: ogImage,
         width: 1200,
         height: 630,
         alt: storeConfig.storeName,
@@ -55,7 +58,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: storeConfig.storeName,
     description: 'اختر عطرك واطلب مباشرة عبر واتساب',
-    images: ['/og-image.jpg'],
+    images: [ogImage],
   },
   robots: {
     index: true,
