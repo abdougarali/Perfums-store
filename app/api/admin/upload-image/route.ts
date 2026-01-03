@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage } from '@/lib/firebase'
+import { storage, isFirebaseAvailable } from '@/lib/firebase'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if Firebase is configured
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    // Check if Firebase Storage is available
+    if (!isFirebaseAvailable() || !storage) {
       return NextResponse.json(
-        { error: 'Firebase not configured' },
+        { error: 'Firebase Storage is not configured. Please set up Firebase environment variables.' },
         { status: 500 }
       )
     }
