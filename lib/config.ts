@@ -1,6 +1,6 @@
-import storeConfig from '@/data/store-config.json'
+import storeConfigStatic from '@/data/store-config.json'
 
-interface StoreConfig {
+export interface StoreConfig {
   storeName: string
   whatsappNumber: string
   instagram?: string
@@ -9,5 +9,9 @@ interface StoreConfig {
   generalWhatsAppMessage?: string
 }
 
-export const storeConfigData: StoreConfig = storeConfig
+// For Server Components - use static data as fallback
+export const storeConfigData: StoreConfig = storeConfigStatic as StoreConfig
+
+// For Client Components - use useStoreConfig hook from useFirebaseData.ts
+// This allows real-time updates from Firebase
 

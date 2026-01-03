@@ -4,19 +4,37 @@ import { useState } from 'react'
 import ProductCard from './ProductCard'
 import ProductModal from './ProductModal'
 import ProductCarousel from './ProductCarousel'
-import perfumesData from '@/data/perfumes.json'
+import { useProducts, type Product } from '@/lib/useFirebaseData'
+import perfumesDataStatic from '@/data/perfumes.json'
 import styles from './ProductListing.module.css'
 
 const GRID_ITEMS_COUNT = 6 // 2 rows × 3 columns
 
 export default function ProductListing() {
-  const [selectedProduct, setSelectedProduct] = useState<typeof perfumesData[0] | null>(null)
+  const { products: productsFromFirebase, loading, error } = useProducts()
+  
+  // Fallback to static data if Firebase is not configured or fails
+  const perfumesData = productsFromFirebase.length > 0 
+    ? productsFromFirebase 
+    : (perfumesDataStatic as Product[])
+  
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   // First 6 items for grid (2 rows)
   const gridProducts = perfumesData.slice(0, GRID_ITEMS_COUNT)
   
   // Remaining items for carousel
   const carouselProducts = perfumesData.slice(GRID_ITEMS_COUNT)
+  
+  if (loading) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <p>جاري التحميل...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className={styles.section}>
