@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage, isFirebaseAvailable } from '@/lib/firebase'
+import { isFirebaseAvailable } from '@/lib/firebase'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if Firebase Storage is available
-    if (!isFirebaseAvailable() || !storage) {
+    // Check if Firebase is available
+    if (!isFirebaseAvailable()) {
       return NextResponse.json(
-        { error: 'Firebase Storage is not configured. Please set up Firebase environment variables.' },
+        { 
+          error: 'Firebase is not configured. Please set up Firebase in environment variables.',
+        },
         { status: 500 }
       )
     }
@@ -25,27 +26,48 @@ export async function POST(request: NextRequest) {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       return NextResponse.json(
-        { error: 'File must be an image' },
+        { error: 'File must be an image', details: `File type: ${file.type}` },
         { status: 400 }
       )
     }
 
-    // Upload image to Firebase Storage
-    const timestamp = Date.now()
-    const fileName = `${timestamp}_${file.name}`
-    const storageRef = ref(storage, `images/${fileName}`)
-    
+    // Validate file size (max 2MB for Base64 - to avoid database size issues)
+    const maxSize = 2 * 1024 * 1024 // 2MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: 'File is too large', details: `Maximum size is 2MB for Base64 storage. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress the image or use a smaller file.` },
+        { status: 400 }
+      )
+    }
+
+    // Convert image to Base64
     const bytes = await file.arrayBuffer()
-    await uploadBytes(storageRef, bytes)
+    const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64}`
     
-    // Get download URL
-    const downloadURL = await getDownloadURL(storageRef)
+    console.log('Image converted to Base64:', {
+      fileName: file.name,
+      size: file.size,
+      type: file.type,
+      base64Length: base64.length
+    })
     
-    return NextResponse.json({ url: downloadURL, fileName })
-  } catch (error) {
-    console.error('Error uploading image:', error)
+    // Return Base64 data URL (will be saved directly in Realtime Database)
+    return NextResponse.json({ 
+      url: dataUrl, 
+      fileName: file.name,
+      isBase64: true 
+    })
+  } catch (error: any) {
+    console.error('Error converting image to Base64:', error)
+    
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { 
+        error: 'Failed to process image',
+        details: error?.message || 'Unknown error occurred while converting image to Base64.',
+        fullError: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      },
       { status: 500 }
     )
   }

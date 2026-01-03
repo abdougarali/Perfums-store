@@ -1,10 +1,15 @@
 'use client'
 
 import styles from './Hero.module.css'
-import { storeConfigData } from '@/lib/config'
+import { useStoreConfig } from '@/lib/useFirebaseData'
+import { storeConfigData as fallbackConfig } from '@/lib/config'
 import { analytics } from '@/lib/analytics'
 
 export default function Hero() {
+  const { config, loading } = useStoreConfig()
+  // Use Firebase config if available, otherwise use fallback static data
+  const storeConfigData = config || fallbackConfig
+
   const handleWhatsAppClick = () => {
     // Track WhatsApp click
     analytics.trackWhatsAppClick('hero')

@@ -10,6 +10,7 @@ export interface Product {
   description: string
   image: string
   sizes: Array<{ size: string; price: number }>
+  active?: boolean // Product visibility: true = visible, false = hidden
 }
 
 interface StoreConfig {

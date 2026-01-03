@@ -1,23 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import styles from './admin.module.css'
 import type { Product } from '@/lib/useFirebaseData'
 import type { StoreConfig } from '@/lib/config'
 import perfumesDataStatic from '@/data/perfumes.json'
 import storeConfigStatic from '@/data/store-config.json'
 
+// Extended Product type with additional fields
+interface ExtendedProduct extends Product {
+  active?: boolean
+  order?: number
+  category?: string
+}
+
 export default function AdminPage() {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ExtendedProduct[]>([])
   const [config, setConfig] = useState<StoreConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<'products' | 'config'>('products')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'config'>('dashboard')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null) // product id being uploaded
+  const [savingProductId, setSavingProductId] = useState<string | null>(null) // product id being saved
+
+  const ITEMS_PER_PAGE = 3
 
   // Load data on mount
   useEffect(() => {
     loadData()
   }, [])
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  // Reset to page 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, filterActive])
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type })
+  }
 
   const loadData = async () => {
     try {
@@ -26,24 +58,39 @@ export default function AdminPage() {
         fetch('/api/admin/config'),
       ])
       
-      // Load products: Use Firebase if available, otherwise use static JSON
-      let productsData: Product[] = []
+      // Load products
+      let productsData: ExtendedProduct[] = []
       if (productsRes.ok) {
         const firebaseProducts = await productsRes.json()
         if (Array.isArray(firebaseProducts) && firebaseProducts.length > 0) {
-          productsData = firebaseProducts
+          productsData = firebaseProducts.map((p: Product, index: number) => ({
+            ...p,
+            active: (p as ExtendedProduct).active !== false, // default to true
+            order: (p as ExtendedProduct).order ?? index,
+            category: (p as ExtendedProduct).category || 'عام',
+          }))
         } else {
-          // If Firebase is empty, use static data
-          productsData = perfumesDataStatic as Product[]
+          productsData = (perfumesDataStatic as Product[]).map((p, index) => ({
+            ...p,
+            active: true,
+            order: index,
+            category: 'عام',
+          }))
         }
       } else {
-        // If Firebase fails, use static data
-        productsData = perfumesDataStatic as Product[]
+        productsData = (perfumesDataStatic as Product[]).map((p, index) => ({
+          ...p,
+          active: true,
+          order: index,
+          category: 'عام',
+        }))
       }
       
+      // Sort by order
+      productsData.sort((a, b) => (a.order || 0) - (b.order || 0))
       setProducts(productsData)
       
-      // Load config: Use Firebase if available, otherwise use static JSON
+      // Load config
       if (configRes.ok) {
         const firebaseConfig = await configRes.json()
         if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
@@ -58,8 +105,12 @@ export default function AdminPage() {
       setLoading(false)
     } catch (error) {
       console.error('Error loading data:', error)
-      // Fallback to static data on error
-      setProducts(perfumesDataStatic as Product[])
+      setProducts((perfumesDataStatic as Product[]).map((p, index) => ({
+        ...p,
+        active: true,
+        order: index,
+        category: 'عام',
+      })))
       setConfig(storeConfigStatic as StoreConfig)
       setLoading(false)
     }
@@ -77,25 +128,62 @@ export default function AdminPage() {
       if (res.ok) {
         const data = await res.json()
         if (data.success) {
-          alert('✅ تم حفظ المنتجات بنجاح!')
+          showToast('✅ تم حفظ جميع المنتجات بنجاح!', 'success')
         } else {
-          alert('❌ حدث خطأ أثناء الحفظ')
+          showToast('❌ حدث خطأ أثناء الحفظ', 'error')
         }
       } else {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
         const errorMessage = errorData.error || 'حدث خطأ أثناء الحفظ'
         
         if (errorMessage.includes('Firebase not configured')) {
-          alert('❌ خطأ: Firebase غير مُعدّ في Vercel.\n\nيرجى إضافة Environment Variables في Vercel:\n- اذهب إلى Project Settings → Environment Variables\n- أضف جميع متغيرات Firebase من .env.local')
+          showToast('❌ Firebase غير مُعدّ في Vercel. راجع VERCEL_ENV_SETUP.md', 'error')
         } else {
-          alert(`❌ خطأ: ${errorMessage}`)
+          showToast(`❌ ${errorMessage}`, 'error')
         }
       }
     } catch (error) {
       console.error('Error saving products:', error)
-      alert('❌ حدث خطأ أثناء الحفظ. تحقق من Console للمزيد من التفاصيل.')
+      showToast('❌ حدث خطأ أثناء الحفظ. تحقق من Console', 'error')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const saveSingleProduct = async (productIndex: number) => {
+    const product = products[productIndex]
+    setSavingProductId(product.id)
+    
+    try {
+      // Save the entire products array (Firebase stores the full array)
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(products),
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          showToast(`✅ تم حفظ "${product.name || 'المنتج'}" بنجاح!`, 'success')
+        } else {
+          showToast('❌ حدث خطأ أثناء الحفظ', 'error')
+        }
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        const errorMessage = errorData.error || 'حدث خطأ أثناء الحفظ'
+        
+        if (errorMessage.includes('Firebase not configured')) {
+          showToast('❌ Firebase غير مُعدّ في Vercel. راجع VERCEL_ENV_SETUP.md', 'error')
+        } else {
+          showToast(`❌ ${errorMessage}`, 'error')
+        }
+      }
+    } catch (error) {
+      console.error('Error saving product:', error)
+      showToast('❌ حدث خطأ أثناء الحفظ. تحقق من Console', 'error')
+    } finally {
+      setSavingProductId(null)
     }
   }
 
@@ -113,29 +201,29 @@ export default function AdminPage() {
       if (res.ok) {
         const data = await res.json()
         if (data.success) {
-          alert('✅ تم حفظ الإعدادات بنجاح!')
+          showToast('✅ تم حفظ الإعدادات بنجاح!', 'success')
         } else {
-          alert('❌ حدث خطأ أثناء الحفظ')
+          showToast('❌ حدث خطأ أثناء الحفظ', 'error')
         }
       } else {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
         const errorMessage = errorData.error || 'حدث خطأ أثناء الحفظ'
         
         if (errorMessage.includes('Firebase not configured')) {
-          alert('❌ خطأ: Firebase غير مُعدّ في Vercel.\n\nيرجى إضافة Environment Variables في Vercel:\n- اذهب إلى Project Settings → Environment Variables\n- أضف جميع متغيرات Firebase من .env.local')
+          showToast('❌ Firebase غير مُعدّ في Vercel. راجع VERCEL_ENV_SETUP.md', 'error')
         } else {
-          alert(`❌ خطأ: ${errorMessage}`)
+          showToast(`❌ ${errorMessage}`, 'error')
         }
       }
     } catch (error) {
       console.error('Error saving config:', error)
-      alert('❌ حدث خطأ أثناء الحفظ. تحقق من Console للمزيد من التفاصيل.')
+      showToast('❌ حدث خطأ أثناء الحفظ. تحقق من Console', 'error')
     } finally {
       setSaving(false)
     }
   }
 
-  const updateProduct = (index: number, field: keyof Product, value: any) => {
+  const updateProduct = (index: number, field: keyof ExtendedProduct, value: any) => {
     const updated = [...products]
     updated[index] = { ...updated[index], [field]: value }
     setProducts(updated)
@@ -162,22 +250,55 @@ export default function AdminPage() {
   }
 
   const addProduct = () => {
-    setProducts([
-      ...products,
-      {
-        id: String(products.length + 1),
-        name: '',
-        description: '',
-        image: '',
-        sizes: [{ size: '', price: 0 }],
-      },
-    ])
+    const newProduct: ExtendedProduct = {
+      id: String(Date.now()),
+      name: '',
+      description: '',
+      image: '',
+      sizes: [{ size: '', price: 0 }],
+      active: true,
+      order: products.length,
+      category: 'عام',
+    }
+    setProducts([...products, newProduct])
+    setActiveTab('products')
+    // Scroll to new product after a brief delay
+    setTimeout(() => {
+      const element = document.getElementById(`product-${newProduct.id}`)
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 100)
   }
 
   const removeProduct = (index: number) => {
     if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       setProducts(products.filter((_, i) => i !== index))
+      showToast('تم حذف المنتج', 'success')
     }
+  }
+
+  const toggleProductActive = (index: number) => {
+    const updated = [...products]
+    updated[index].active = !updated[index].active
+    setProducts(updated)
+  }
+
+  const moveProduct = (index: number, direction: 'up' | 'down') => {
+    const updated = [...products]
+    const newIndex = direction === 'up' ? index - 1 : index + 1
+    
+    if (newIndex < 0 || newIndex >= updated.length) return
+    
+    // Swap orders
+    const tempOrder = updated[index].order || index
+    updated[index].order = updated[newIndex].order || newIndex
+    updated[newIndex].order = tempOrder
+    
+    // Swap products
+    const temp = updated[index]
+    updated[index] = updated[newIndex]
+    updated[newIndex] = temp
+    
+    setProducts(updated)
   }
 
   const updateConfig = (field: keyof StoreConfig, value: string) => {
@@ -185,214 +306,709 @@ export default function AdminPage() {
     setConfig({ ...config, [field]: value })
   }
 
+  const handleImageUpload = async (productIndex: number, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ الملف يجب أن يكون صورة', 'error')
+      return
+    }
+
+    const product = products[productIndex]
+    setUploadingImage(product.id)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        updateProduct(productIndex, 'image', data.url)
+        showToast('✅ تم رفع الصورة بنجاح', 'success')
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Upload failed' }))
+        const errorMessage = errorData.details 
+          ? `${errorData.error}\n${errorData.details}` 
+          : errorData.error || 'فشل رفع الصورة'
+        console.error('Upload error:', errorData)
+        showToast(`❌ ${errorMessage}`, 'error')
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      showToast('❌ حدث خطأ أثناء رفع الصورة', 'error')
+    } finally {
+      setUploadingImage(null)
+    }
+  }
+
+  // Filtered and searched products
+  const filteredProducts = useMemo(() => {
+    let filtered = products
+
+    // Filter by active status
+    if (filterActive === 'active') {
+      filtered = filtered.filter(p => p.active !== false)
+    } else if (filterActive === 'inactive') {
+      filtered = filtered.filter(p => p.active === false)
+    }
+
+    // Search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        p =>
+          p.name.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          p.category?.toLowerCase().includes(query)
+      )
+    }
+
+    return filtered
+  }, [products, searchQuery, filterActive])
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+
+  // Pagination handlers
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      // Scroll to top of products list
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1)
+    }
+  }
+
+  // Statistics
+  const stats = useMemo(() => {
+    const total = products.length
+    const active = products.filter(p => p.active !== false).length
+    const inactive = total - active
+    const totalSizes = products.reduce((sum, p) => sum + p.sizes.length, 0)
+    
+    return { total, active, inactive, totalSizes }
+  }, [products])
+
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>جاري التحميل...</div>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p className={styles.loadingText}>جاري التحميل...</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className={styles.container}>
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* Header */}
       <header className={styles.header}>
-        <h1>لوحة التحكم - Admin Panel</h1>
-        <p className={styles.subtitle}>إدارة المنتجات وإعدادات المتجر</p>
+        <div>
+          <h1>لوحة التحكم</h1>
+          <p className={styles.subtitle}>إدارة متجر العطور بسهولة واحترافية</p>
+        </div>
+        <div className={styles.headerActions}>
+          <a href="/" target="_blank" className={styles.viewSiteButton}>
+            👁️ عرض الموقع
+          </a>
+        </div>
       </header>
 
       {/* Tabs */}
       <div className={styles.tabs}>
         <button
+          className={`${styles.tab} ${activeTab === 'dashboard' ? styles.active : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          📊 لوحة المعلومات
+        </button>
+        <button
           className={`${styles.tab} ${activeTab === 'products' ? styles.active : ''}`}
           onClick={() => setActiveTab('products')}
         >
-          المنتجات ({products.length})
+          🛍️ المنتجات ({products.length})
         </button>
         <button
           className={`${styles.tab} ${activeTab === 'config' ? styles.active : ''}`}
           onClick={() => setActiveTab('config')}
         >
-          إعدادات المتجر
+          ⚙️ الإعدادات
         </button>
       </div>
+
+      {/* Dashboard Tab */}
+      {activeTab === 'dashboard' && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>لوحة المعلومات</h2>
+          
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 18H4V8H20V18Z" fill="currentColor"/>
+                  <path d="M6 10H18V12H6V10ZM6 14H14V16H6V14Z" fill="currentColor"/>
+                </svg>
+              </div>
+              <div className={styles.statContent}>
+                <h3>{stats.total}</h3>
+                <p>إجمالي المنتجات</p>
+              </div>
+            </div>
+            
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/>
+                </svg>
+              </div>
+              <div className={styles.statContent}>
+                <h3>{stats.active}</h3>
+                <p>منتجات نشطة</p>
+              </div>
+            </div>
+            
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 19H18V17H6V19ZM6 15H18V13H6V15ZM6 11H18V9H6V11ZM6 7H18V5H6V7Z" fill="currentColor"/>
+                </svg>
+              </div>
+              <div className={styles.statContent}>
+                <h3>{stats.inactive}</h3>
+                <p>منتجات غير نشطة</p>
+              </div>
+            </div>
+            
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
+                  <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="currentColor"/>
+                </svg>
+              </div>
+              <div className={styles.statContent}>
+                <h3>{stats.totalSizes}</h3>
+                <p>إجمالي الأحجام</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.quickActions}>
+            <h3>إجراءات سريعة</h3>
+            <div className={styles.quickActionsGrid}>
+              <button onClick={addProduct} className={styles.quickActionButton}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>إضافة منتج جديد</span>
+              </button>
+              <button onClick={() => setActiveTab('products')} className={styles.quickActionButton}>
+                📝 تعديل المنتجات
+              </button>
+              <button onClick={() => setActiveTab('config')} className={styles.quickActionButton}>
+                ⚙️ تعديل الإعدادات
+              </button>
+              <a href="/" target="_blank" className={styles.quickActionButton}>
+                👁️ معاينة الموقع
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Products Tab */}
       {activeTab === 'products' && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2>المنتجات</h2>
+            <h2 className={styles.sectionTitle}>إدارة المنتجات</h2>
             <button onClick={addProduct} className={styles.addButton}>
-              + إضافة منتج جديد
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>إضافة منتج جديد</span>
             </button>
           </div>
 
-          {products.map((product, index) => (
-            <div key={product.id || index} className={styles.productCard}>
-              <div className={styles.productHeader}>
-                <div>
-                  <h3>منتج #{index + 1}</h3>
-                  {product.name && (
-                    <p className={styles.productNamePreview}>{product.name}</p>
-                  )}
-                </div>
-                <button
-                  onClick={() => removeProduct(index)}
-                  className={styles.deleteButton}
-                >
-                  🗑️ حذف
-                </button>
-              </div>
+          {/* Search and Filter */}
+          <div className={styles.searchFilterBar}>
+            <div className={styles.searchBox}>
+              <svg className={styles.searchIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="currentColor"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="ابحث عن منتج..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+            </div>
+            <div className={styles.filterButtons}>
+              <button
+                className={`${styles.filterButton} ${filterActive === 'all' ? styles.active : ''}`}
+                onClick={() => setFilterActive('all')}
+              >
+                الكل ({products.length})
+              </button>
+              <button
+                className={`${styles.filterButton} ${filterActive === 'active' ? styles.active : ''}`}
+                onClick={() => setFilterActive('active')}
+              >
+                نشط ({stats.active})
+              </button>
+              <button
+                className={`${styles.filterButton} ${filterActive === 'inactive' ? styles.active : ''}`}
+                onClick={() => setFilterActive('inactive')}
+              >
+                غير نشط ({stats.inactive})
+              </button>
+            </div>
+          </div>
 
-              <div className={styles.formGroup}>
-                <label>اسم المنتج *</label>
-                <input
-                  type="text"
-                  value={product.name}
-                  onChange={(e) => updateProduct(index, 'name', e.target.value)}
-                  placeholder="اسم المنتج"
-                  className={styles.input}
-                />
+          {/* Products List */}
+          <div className={styles.productsList}>
+            {filteredProducts.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>🔍 لا توجد منتجات تطابق البحث</p>
               </div>
+            ) : (
+              <>
+                {/* Products Count Info */}
+                {filteredProducts.length > 0 && (
+                  <div className={styles.paginationInfo}>
+                    <p>
+                      عرض {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} من {filteredProducts.length} منتج
+                    </p>
+                  </div>
+                )}
 
-              <div className={styles.formGroup}>
-                <label>الوصف *</label>
-                <textarea
-                  value={product.description}
-                  onChange={(e) => updateProduct(index, 'description', e.target.value)}
-                  placeholder="وصف المنتج"
-                  rows={3}
-                  className={styles.textarea}
-                />
-              </div>
+                {/* Paginated Products */}
+                {paginatedProducts.map((product, index) => {
+                const originalIndex = products.findIndex(p => p.id === product.id)
+                return (
+                  <div key={product.id || index} id={`product-${product.id}`} className={styles.productCard}>
+                    <div className={styles.productCardHeader}>
+                      <div className={styles.productCardHeaderLeft}>
+                        <div className={styles.productOrderControls}>
+                          <button
+                            onClick={() => moveProduct(originalIndex, 'up')}
+                            disabled={originalIndex === 0}
+                            className={styles.orderButton}
+                            title="نقل للأعلى"
+                          >
+                            ⬆️
+                          </button>
+                          <button
+                            onClick={() => moveProduct(originalIndex, 'down')}
+                            disabled={originalIndex === products.length - 1}
+                            className={styles.orderButton}
+                            title="نقل للأسفل"
+                          >
+                            ⬇️
+                          </button>
+                        </div>
+                        <div>
+                          <h3 className={styles.productCardTitle}>
+                            منتج #{originalIndex + 1}
+                            {product.name && <span className={styles.productNameBadge}>{product.name}</span>}
+                          </h3>
+                          <div className={styles.productMeta}>
+                            <span className={styles.productId}>ID: {product.id}</span>
+                            <span className={styles.productOrder}>ترتيب: {product.order ?? originalIndex}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.productCardHeaderRight}>
+                        <label className={styles.toggleSwitch}>
+                          <input
+                            type="checkbox"
+                            checked={product.active !== false}
+                            onChange={() => toggleProductActive(originalIndex)}
+                          />
+                          <span className={styles.toggleSlider}></span>
+                          <span className={styles.toggleLabel}>
+                            {product.active !== false ? 'نشط' : 'غير نشط'}
+                          </span>
+                        </label>
+                        <button
+                          onClick={() => removeProduct(originalIndex)}
+                          className={styles.deleteButton}
+                          title="حذف المنتج"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
 
-              <div className={styles.formGroup}>
-                <label>مسار الصورة *</label>
-                <input
-                  type="text"
-                  value={product.image}
-                  onChange={(e) => updateProduct(index, 'image', e.target.value)}
-                  placeholder="/images/Perfum_img(1).png"
-                  className={styles.input}
-                />
-                <small className={styles.helpText}>
-                  مثال: /images/Perfum_img(1).png
-                </small>
-              </div>
+                    <div className={styles.productCardBody}>
+                      <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                          <label>اسم المنتج *</label>
+                          <input
+                            type="text"
+                            value={product.name}
+                            onChange={(e) => updateProduct(originalIndex, 'name', e.target.value)}
+                            placeholder="اسم المنتج"
+                            className={styles.input}
+                          />
+                        </div>
 
-              <div className={styles.sizesSection}>
-                <label>الأحجام والأسعار</label>
-                {product.sizes.map((size, sizeIndex) => (
-                  <div key={sizeIndex} className={styles.sizeRow}>
-                    <input
-                      type="text"
-                      value={size.size}
-                      onChange={(e) => updateProductSize(index, sizeIndex, 'size', e.target.value)}
-                      placeholder="30ml"
-                      className={styles.sizeInput}
-                    />
-                    <input
-                      type="number"
-                      value={size.price}
-                      onChange={(e) => updateProductSize(index, sizeIndex, 'price', Number(e.target.value))}
-                      placeholder="السعر"
-                      className={styles.priceInput}
-                    />
+                        <div className={styles.formGroup}>
+                          <label>التصنيف</label>
+                          <input
+                            type="text"
+                            value={product.category || ''}
+                            onChange={(e) => updateProduct(originalIndex, 'category', e.target.value)}
+                            placeholder="عام"
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>الوصف *</label>
+                        <textarea
+                          value={product.description}
+                          onChange={(e) => updateProduct(originalIndex, 'description', e.target.value)}
+                          placeholder="وصف المنتج"
+                          rows={3}
+                          className={styles.textarea}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>الصورة *</label>
+                        <div className={styles.imageUploadSection}>
+                          <div className={styles.imagePreviewContainer}>
+                            {product.image ? (
+                              <div className={styles.imagePreview}>
+                                <img
+                                  src={product.image.startsWith('data:') || product.image.startsWith('http') || product.image.startsWith('/') ? product.image : `/${product.image}`}
+                                  alt={product.name || 'Product'}
+                                  className={styles.previewImage}
+                                />
+                                <button
+                                  onClick={() => updateProduct(originalIndex, 'image', '')}
+                                  className={styles.removeImageButton}
+                                  title="إزالة الصورة"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <div className={styles.imagePlaceholder}>
+                                <span>📷</span>
+                                <p>لا توجد صورة</p>
+                              </div>
+                            )}
+                          </div>
+                          <div className={styles.imageUploadControls}>
+                            <input
+                              type="text"
+                              value={product.image}
+                              onChange={(e) => updateProduct(originalIndex, 'image', e.target.value)}
+                              placeholder="/images/Perfum_img(1).png أو رابط Firebase"
+                              className={styles.input}
+                            />
+                            <label className={styles.uploadButton}>
+                              {uploadingImage === product.id ? (
+                                <>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" opacity="0.3"/>
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" strokeDashoffset="23.562">
+                                      <animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="1s" repeatCount="indefinite"/>
+                                    </circle>
+                                  </svg>
+                                  <span>جاري الرفع...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 18C4.23858 18 2 15.7614 2 13C2 10.2386 4.23858 8 7 8C7.33514 8 7.66082 8.03173 7.97561 8.09181C8.46364 5.28056 10.8638 3.25 13.5 3.25C16.4645 3.25 18.75 5.53553 18.75 8.5C18.75 8.69891 18.7402 8.89539 18.7209 9.08911C20.3933 9.34922 21.75 10.8462 21.75 12.75C21.75 14.8211 20.0711 16.5 18 16.5H7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M12 8V16M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span>رفع صورة</span>
+                                </>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) handleImageUpload(originalIndex, file)
+                                }}
+                                disabled={uploadingImage === product.id}
+                                style={{ display: 'none' }}
+                              />
+                            </label>
+                          </div>
+                          <small className={styles.helpText}>
+                            يمكنك إدخال مسار الصورة أو رفع صورة جديدة إلى Firebase
+                          </small>
+                        </div>
+                      </div>
+
+                      <div className={styles.sizesSection}>
+                        <div className={styles.sizesSectionHeader}>
+                          <label>الأحجام والأسعار</label>
+                          <button
+                            onClick={() => addProductSize(originalIndex)}
+                            className={styles.addSizeButton}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span>إضافة حجم</span>
+                          </button>
+                        </div>
+                        <div className={styles.sizesList}>
+                          {product.sizes.map((size, sizeIndex) => (
+                            <div key={sizeIndex} className={styles.sizeRow}>
+                              <input
+                                type="text"
+                                value={size.size}
+                                onChange={(e) => updateProductSize(originalIndex, sizeIndex, 'size', e.target.value)}
+                                placeholder="30ml"
+                                className={styles.sizeInput}
+                              />
+                              <input
+                                type="number"
+                                value={size.price}
+                                onChange={(e) => updateProductSize(originalIndex, sizeIndex, 'price', Number(e.target.value))}
+                                placeholder="السعر"
+                                className={styles.priceInput}
+                                min="0"
+                                step="0.01"
+                              />
+                              <span className={styles.currency}>د.ت</span>
+                              <button
+                                onClick={() => removeProductSize(originalIndex, sizeIndex)}
+                                className={styles.removeSizeButton}
+                                title="حذف الحجم"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Save Button for this product */}
+                      <div className={styles.productSaveSection}>
+                        <button
+                          onClick={() => saveSingleProduct(originalIndex)}
+                          disabled={savingProductId === product.id}
+                          className={styles.saveProductButton}
+                        >
+                          {savingProductId === product.id ? (
+                            <>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" opacity="0.3"/>
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" strokeDashoffset="23.562">
+                                  <animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="1s" repeatCount="indefinite"/>
+                                </circle>
+                              </svg>
+                              <span>جاري الحفظ...</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M17 21V13H7V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M7 3V8H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span>حفظ التغييرات</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className={styles.pagination}>
                     <button
-                      onClick={() => removeProductSize(index, sizeIndex)}
-                      className={styles.removeSizeButton}
+                      onClick={goToPreviousPage}
+                      disabled={currentPage === 1}
+                      className={styles.paginationButton}
+                      aria-label="الصفحة السابقة"
                     >
-                      ×
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>السابق</span>
+                    </button>
+
+                    <div className={styles.paginationNumbers}>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        const showPage =
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+
+                        if (!showPage) {
+                          // Show ellipsis
+                          if (page === currentPage - 2 || page === currentPage + 2) {
+                            return (
+                              <span key={page} className={styles.paginationEllipsis}>
+                                ...
+                              </span>
+                            )
+                          }
+                          return null
+                        }
+
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => goToPage(page)}
+                            className={`${styles.paginationNumber} ${currentPage === page ? styles.active : ''}`}
+                            aria-label={`الصفحة ${page}`}
+                            aria-current={currentPage === page ? 'page' : undefined}
+                          >
+                            {page}
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    <button
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                      className={styles.paginationButton}
+                      aria-label="الصفحة التالية"
+                    >
+                      <span>التالي</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
                   </div>
-                ))}
-                <button
-                  onClick={() => addProductSize(index)}
-                  className={styles.addSizeButton}
-                >
-                  + إضافة حجم
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <div className={styles.saveSection}>
-            <button
-              onClick={saveProducts}
-              disabled={saving}
-              className={styles.saveButton}
-            >
-              {saving ? '⏳ جاري الحفظ...' : '💾 حفظ جميع التغييرات'}
-            </button>
-            <p className={styles.saveHint}>
-              💡 نصيحة: عدّل أي منتج في القائمة أعلاه ثم اضغط "حفظ جميع التغييرات"
-            </p>
+                )}
+              </>
+            )}
           </div>
+
+          {filteredProducts.length > 0 && (
+            <div className={styles.saveSection}>
+              <button
+                onClick={saveProducts}
+                disabled={saving}
+                className={styles.saveButton}
+              >
+                {saving ? '⏳ جاري الحفظ...' : '💾 حفظ جميع التغييرات'}
+              </button>
+              <p className={styles.saveHint}>
+                💡 نصيحة: بعد تعديل أي منتج، اضغط "حفظ جميع التغييرات" لتطبيق التعديلات
+              </p>
+            </div>
+          )}
         </section>
       )}
 
       {/* Config Tab */}
       {activeTab === 'config' && config && (
         <section className={styles.section}>
-          <h2>إعدادات المتجر</h2>
+          <h2 className={styles.sectionTitle}>إعدادات المتجر</h2>
 
-          <div className={styles.formGroup}>
-            <label>اسم المتجر</label>
-            <input
-              type="text"
-              value={config.storeName}
-              onChange={(e) => updateConfig('storeName', e.target.value)}
-              placeholder="اسم المتجر"
-            />
-          </div>
+          <div className={styles.configGrid}>
+            <div className={styles.formGroup}>
+              <label>اسم المتجر *</label>
+              <input
+                type="text"
+                value={config.storeName}
+                onChange={(e) => updateConfig('storeName', e.target.value)}
+                placeholder="اسم المتجر"
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>رقم واتساب</label>
-            <input
-              type="text"
-              value={config.whatsappNumber}
-              onChange={(e) => updateConfig('whatsappNumber', e.target.value)}
-              placeholder="21626010403"
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label>رقم واتساب *</label>
+              <input
+                type="text"
+                value={config.whatsappNumber}
+                onChange={(e) => updateConfig('whatsappNumber', e.target.value)}
+                placeholder="21626010403"
+                className={styles.input}
+              />
+              <small className={styles.helpText}>رقم واتساب بدون + أو مسافات</small>
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>رابط إنستغرام</label>
-            <input
-              type="text"
-              value={config.instagram || ''}
-              onChange={(e) => updateConfig('instagram', e.target.value)}
-              placeholder="https://instagram.com/..."
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label>رابط إنستغرام</label>
+              <input
+                type="url"
+                value={config.instagram || ''}
+                onChange={(e) => updateConfig('instagram', e.target.value)}
+                placeholder="https://instagram.com/..."
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>رابط فيسبوك</label>
-            <input
-              type="text"
-              value={config.facebook || ''}
-              onChange={(e) => updateConfig('facebook', e.target.value)}
-              placeholder="https://facebook.com/..."
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label>رابط فيسبوك</label>
+              <input
+                type="url"
+                value={config.facebook || ''}
+                onChange={(e) => updateConfig('facebook', e.target.value)}
+                placeholder="https://facebook.com/..."
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>Google Analytics ID</label>
-            <input
-              type="text"
-              value={config.googleAnalyticsId || ''}
-              onChange={(e) => updateConfig('googleAnalyticsId', e.target.value)}
-              placeholder="G-XXXXXXXXXX"
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label>Google Analytics ID</label>
+              <input
+                type="text"
+                value={config.googleAnalyticsId || ''}
+                onChange={(e) => updateConfig('googleAnalyticsId', e.target.value)}
+                placeholder="G-XXXXXXXXXX"
+                className={styles.input}
+              />
+              <small className={styles.helpText}>معرف Google Analytics (اختياري)</small>
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>رسالة واتساب العامة</label>
-            <textarea
-              value={config.generalWhatsAppMessage || ''}
-              onChange={(e) => updateConfig('generalWhatsAppMessage', e.target.value)}
-              placeholder="السلام عليكم، أريد الاستفسار عن العطور المتوفرة"
-              rows={3}
-            />
+            <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+              <label>رسالة واتساب العامة</label>
+              <textarea
+                value={config.generalWhatsAppMessage || ''}
+                onChange={(e) => updateConfig('generalWhatsAppMessage', e.target.value)}
+                placeholder="السلام عليكم، أريد الاستفسار عن العطور المتوفرة"
+                rows={4}
+                className={styles.textarea}
+              />
+              <small className={styles.helpText}>الرسالة الافتراضية عند الضغط على زر واتساب</small>
+            </div>
           </div>
 
           <button
@@ -400,7 +1016,7 @@ export default function AdminPage() {
             disabled={saving}
             className={styles.saveButton}
           >
-            {saving ? 'جاري الحفظ...' : '💾 حفظ الإعدادات'}
+            {saving ? '⏳ جاري الحفظ...' : '💾 حفظ الإعدادات'}
           </button>
         </section>
       )}

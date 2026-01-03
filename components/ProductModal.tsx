@@ -4,7 +4,8 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import styles from './ProductModal.module.css'
-import { storeConfigData } from '@/lib/config'
+import { useStoreConfig } from '@/lib/useFirebaseData'
+import { storeConfigData as fallbackConfig } from '@/lib/config'
 import { analytics } from '@/lib/analytics'
 
 interface Size {
@@ -26,6 +27,10 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ product, onClose }: ProductModalProps) {
+  const { config, loading } = useStoreConfig()
+  // Use Firebase config if available, otherwise use fallback static data
+  const storeConfigData = config || fallbackConfig
+
   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
   const [mounted, setMounted] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)

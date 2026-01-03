@@ -1,10 +1,15 @@
 'use client'
 
 import styles from './Footer.module.css'
-import { storeConfigData } from '@/lib/config'
+import { useStoreConfig } from '@/lib/useFirebaseData'
+import { storeConfigData as fallbackConfig } from '@/lib/config'
 import { analytics } from '@/lib/analytics'
 
 export default function Footer() {
+  const { config, loading } = useStoreConfig()
+  // Use Firebase config if available, otherwise use fallback static data
+  const storeConfigData = config || fallbackConfig
+
   const handleWhatsAppClick = () => {
     // Track WhatsApp click from floating button
     analytics.trackWhatsAppClick('floating')

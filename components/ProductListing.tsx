@@ -14,9 +14,19 @@ export default function ProductListing() {
   const { products: productsFromFirebase, loading, error } = useProducts()
   
   // Fallback to static data if Firebase is not configured or fails
-  const perfumesData = productsFromFirebase.length > 0 
+  const allProducts = productsFromFirebase.length > 0 
     ? productsFromFirebase 
     : (perfumesDataStatic as Product[])
+  
+  // Filter: Only show active products
+  // Products with active: false or undefined (in static data) should be shown by default
+  // Only hide products explicitly marked as active: false
+  const perfumesData = allProducts.filter(product => {
+    // If active is explicitly false, hide it
+    if (product.active === false) return false
+    // Otherwise, show it (active === true or active === undefined)
+    return true
+  })
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
