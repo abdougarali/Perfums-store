@@ -13,7 +13,7 @@ import path from 'path'
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
 
 import { ref, set } from 'firebase/database'
-import { db } from '../lib/firebase'
+import { db, isFirebaseAvailable } from '../lib/firebase'
 import perfumesData from '../data/perfumes.json'
 import storeConfig from '../data/store-config.json'
 
@@ -22,8 +22,9 @@ async function migrate() {
     console.log('🚀 بدء نقل البيانات إلى Firebase...\n')
 
     // التحقق من إعداد Firebase
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    if (!isFirebaseAvailable() || !db) {
       console.error('❌ خطأ: Firebase غير مُعدّ. تأكد من إعداد .env.local')
+      console.error('   تأكد من وجود جميع متغيرات Firebase في .env.local')
       process.exit(1)
     }
 
