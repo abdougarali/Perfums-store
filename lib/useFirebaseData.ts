@@ -27,8 +27,8 @@ export function useProducts() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check if Firebase is configured
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    // Check if Firebase is configured and available
+    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || !db) {
       setError('Firebase not configured')
       setLoading(false)
       return
@@ -69,8 +69,8 @@ export function useStoreConfig() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check if Firebase is configured
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    // Check if Firebase is configured and available
+    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || !db) {
       setError('Firebase not configured')
       setLoading(false)
       return

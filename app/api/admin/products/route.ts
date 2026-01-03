@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ref, get, set } from 'firebase/database'
-import { db } from '@/lib/firebase'
+import { db, isFirebaseAvailable } from '@/lib/firebase'
+import perfumesDataStatic from '@/data/perfumes.json'
 
 // GET: قراءة المنتجات
 export async function GET() {
   try {
-    // Check if Firebase is configured
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-      return NextResponse.json(
-        { error: 'Firebase not configured' },
-        { status: 500 }
-      )
+    // Check if Firebase is available
+    if (!isFirebaseAvailable() || !db) {
+      // Return static data if Firebase is not configured
+      return NextResponse.json(perfumesDataStatic)
     }
 
     const snapshot = await get(ref(db, 'products'))
@@ -21,23 +20,22 @@ export async function GET() {
       ? products 
       : Object.values(products)
     
-    return NextResponse.json(productsArray)
+    // Return Firebase data if available, otherwise return static data
+    return NextResponse.json(productsArray.length > 0 ? productsArray : perfumesDataStatic)
   } catch (error) {
     console.error('Error fetching products:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch products' },
-      { status: 500 }
-    )
+    // Fallback to static data on error
+    return NextResponse.json(perfumesDataStatic)
   }
 }
 
 // POST: حفظ المنتجات
 export async function POST(request: NextRequest) {
   try {
-    // Check if Firebase is configured
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    // Check if Firebase is available
+    if (!isFirebaseAvailable() || !db) {
       return NextResponse.json(
-        { error: 'Firebase not configured' },
+        { error: 'Firebase not configured. Please set up Firebase environment variables.' },
         { status: 500 }
       )
     }
