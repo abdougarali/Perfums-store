@@ -26,6 +26,8 @@ export default function AdminPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [uploadingImage, setUploadingImage] = useState<string | null>(null) // product id being uploaded
   const [savingProductId, setSavingProductId] = useState<string | null>(null) // product id being saved
+  const [showAddProductModal, setShowAddProductModal] = useState(false) // show add product modal
+  const [newProduct, setNewProduct] = useState<ExtendedProduct | null>(null) // new product being created
 
   const ITEMS_PER_PAGE = 3
 
@@ -250,7 +252,8 @@ export default function AdminPage() {
   }
 
   const addProduct = () => {
-    const newProduct: ExtendedProduct = {
+    // Open modal with empty product form
+    const product: ExtendedProduct = {
       id: String(Date.now()),
       name: '',
       description: '',
@@ -260,13 +263,44 @@ export default function AdminPage() {
       order: products.length,
       category: 'عام',
     }
+    setNewProduct(product)
+    setShowAddProductModal(true)
+  }
+
+  const handleSaveNewProduct = () => {
+    if (!newProduct) return
+
+    // Validate required fields
+    if (!newProduct.name.trim()) {
+      showToast('❌ يرجى إدخال اسم المنتج', 'error')
+      return
+    }
+    if (!newProduct.image.trim()) {
+      showToast('❌ يرجى إدخال صورة المنتج', 'error')
+      return
+    }
+    if (newProduct.sizes.length === 0 || !newProduct.sizes[0].size.trim() || newProduct.sizes[0].price <= 0) {
+      showToast('❌ يرجى إدخال حجم واحد على الأقل بسعر صحيح', 'error')
+      return
+    }
+
+    // Add product to list
     setProducts([...products, newProduct])
+    setShowAddProductModal(false)
+    setNewProduct(null)
     setActiveTab('products')
+    showToast('✅ تم إضافة المنتج بنجاح', 'success')
+    
     // Scroll to new product after a brief delay
     setTimeout(() => {
       const element = document.getElementById(`product-${newProduct.id}`)
       element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
+  }
+
+  const handleCancelNewProduct = () => {
+    setShowAddProductModal(false)
+    setNewProduct(null)
   }
 
   const removeProduct = (index: number) => {
@@ -342,6 +376,66 @@ export default function AdminPage() {
     } finally {
       setUploadingImage(null)
     }
+  }
+
+  const handleImageUploadNewProduct = async (file: File) => {
+    if (!newProduct) return
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ الملف يجب أن يكون صورة', 'error')
+      return
+    }
+
+    setUploadingImage('new-product')
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setNewProduct({ ...newProduct, image: data.url })
+        showToast('✅ تم رفع الصورة بنجاح', 'success')
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Upload failed' }))
+        const errorMessage = errorData.details 
+          ? `${errorData.error}\n${errorData.details}` 
+          : errorData.error || 'فشل رفع الصورة'
+        console.error('Upload error:', errorData)
+        showToast(`❌ ${errorMessage}`, 'error')
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      showToast('❌ حدث خطأ أثناء رفع الصورة', 'error')
+    } finally {
+      setUploadingImage(null)
+    }
+  }
+
+  const updateNewProduct = (field: keyof ExtendedProduct, value: any) => {
+    if (!newProduct) return
+    setNewProduct({ ...newProduct, [field]: value })
+  }
+
+  const updateNewProductSize = (sizeIndex: number, field: 'size' | 'price', value: string | number) => {
+    if (!newProduct) return
+    const sizes = [...newProduct.sizes]
+    sizes[sizeIndex] = { ...sizes[sizeIndex], [field]: value }
+    setNewProduct({ ...newProduct, sizes })
+  }
+
+  const addNewProductSize = () => {
+    if (!newProduct) return
+    setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, { size: '', price: 0 }] })
+  }
+
+  const removeNewProductSize = (sizeIndex: number) => {
+    if (!newProduct) return
+    setNewProduct({ ...newProduct, sizes: newProduct.sizes.filter((_, i) => i !== sizeIndex) })
   }
 
   // Filtered and searched products
@@ -1019,6 +1113,168 @@ export default function AdminPage() {
             {saving ? '⏳ جاري الحفظ...' : '💾 حفظ الإعدادات'}
           </button>
         </section>
+      )}
+
+      {/* Add Product Modal */}
+      {showAddProductModal && newProduct && (
+        <div className={styles.modalOverlay} onClick={handleCancelNewProduct}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>إضافة منتج جديد</h2>
+              <button onClick={handleCancelNewProduct} className={styles.modalCloseButton}>
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label>اسم المنتج *</label>
+                <input
+                  type="text"
+                  value={newProduct.name}
+                  onChange={(e) => updateNewProduct('name', e.target.value)}
+                  placeholder="عطر الكلاسيكية"
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>الوصف</label>
+                <textarea
+                  value={newProduct.description}
+                  onChange={(e) => updateNewProduct('description', e.target.value)}
+                  placeholder="وصف المنتج..."
+                  rows={4}
+                  className={styles.textarea}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>الصورة *</label>
+                <div className={styles.imageUploadSection}>
+                  <div className={styles.imagePreviewContainer}>
+                    {newProduct.image ? (
+                      <div className={styles.imagePreview}>
+                        <img
+                          src={newProduct.image.startsWith('data:') || newProduct.image.startsWith('http') || newProduct.image.startsWith('/') ? newProduct.image : `/${newProduct.image}`}
+                          alt={newProduct.name || 'Product'}
+                          className={styles.previewImage}
+                        />
+                        <button
+                          onClick={() => updateNewProduct('image', '')}
+                          className={styles.removeImageButton}
+                          title="إزالة الصورة"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.imagePlaceholder}>
+                        <span>📷</span>
+                        <p>لا توجد صورة</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.imageUploadControls}>
+                    <input
+                      type="text"
+                      value={newProduct.image}
+                      onChange={(e) => updateNewProduct('image', e.target.value)}
+                      placeholder="/images/Perfum_img(1).png أو رابط Firebase"
+                      className={styles.input}
+                    />
+                    <label className={styles.uploadButton}>
+                      {uploadingImage === 'new-product' ? (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" opacity="0.3"/>
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="31.416" strokeDashoffset="23.562">
+                              <animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="1s" repeatCount="indefinite"/>
+                            </circle>
+                          </svg>
+                          <span>جاري الرفع...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 18C4.23858 18 2 15.7614 2 13C2 10.2386 4.23858 8 7 8C7.33514 8 7.66082 8.03173 7.97561 8.09181C8.46364 5.28056 10.8638 3.25 13.5 3.25C16.4645 3.25 18.75 5.53553 18.75 8.5C18.75 8.69891 18.7402 8.89539 18.7209 9.08911C20.3933 9.34922 21.75 10.8462 21.75 12.75C21.75 14.8211 20.0711 16.5 18 16.5H7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 8V16M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span>رفع صورة</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleImageUploadNewProduct(file)
+                        }}
+                        disabled={uploadingImage === 'new-product'}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.sizesSection}>
+                <div className={styles.sizesSectionHeader}>
+                  <label>الأحجام والأسعار *</label>
+                  <button
+                    onClick={addNewProductSize}
+                    className={styles.addSizeButton}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>إضافة حجم</span>
+                  </button>
+                </div>
+                <div className={styles.sizesList}>
+                  {newProduct.sizes.map((size, sizeIndex) => (
+                    <div key={sizeIndex} className={styles.sizeRow}>
+                      <input
+                        type="text"
+                        value={size.size}
+                        onChange={(e) => updateNewProductSize(sizeIndex, 'size', e.target.value)}
+                        placeholder="30ml"
+                        className={styles.sizeInput}
+                      />
+                      <input
+                        type="number"
+                        value={size.price}
+                        onChange={(e) => updateNewProductSize(sizeIndex, 'price', parseFloat(e.target.value) || 0)}
+                        placeholder="السعر"
+                        className={styles.priceInput}
+                        min="0"
+                        step="0.01"
+                      />
+                      {newProduct.sizes.length > 1 && (
+                        <button
+                          onClick={() => removeNewProductSize(sizeIndex)}
+                          className={styles.removeSizeButton}
+                          title="حذف الحجم"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button onClick={handleCancelNewProduct} className={styles.cancelButton}>
+                إلغاء
+              </button>
+              <button onClick={handleSaveNewProduct} className={styles.saveButton}>
+                حفظ المنتج
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
