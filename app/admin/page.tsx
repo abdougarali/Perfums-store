@@ -75,13 +75,25 @@ export default function AdminPage() {
       })
       
       if (res.ok) {
-        alert('✅ تم حفظ المنتجات بنجاح!')
+        const data = await res.json()
+        if (data.success) {
+          alert('✅ تم حفظ المنتجات بنجاح!')
+        } else {
+          alert('❌ حدث خطأ أثناء الحفظ')
+        }
       } else {
-        alert('❌ حدث خطأ أثناء الحفظ')
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        const errorMessage = errorData.error || 'حدث خطأ أثناء الحفظ'
+        
+        if (errorMessage.includes('Firebase not configured')) {
+          alert('❌ خطأ: Firebase غير مُعدّ في Vercel.\n\nيرجى إضافة Environment Variables في Vercel:\n- اذهب إلى Project Settings → Environment Variables\n- أضف جميع متغيرات Firebase من .env.local')
+        } else {
+          alert(`❌ خطأ: ${errorMessage}`)
+        }
       }
     } catch (error) {
       console.error('Error saving products:', error)
-      alert('❌ حدث خطأ أثناء الحفظ')
+      alert('❌ حدث خطأ أثناء الحفظ. تحقق من Console للمزيد من التفاصيل.')
     } finally {
       setSaving(false)
     }
@@ -99,13 +111,25 @@ export default function AdminPage() {
       })
       
       if (res.ok) {
-        alert('✅ تم حفظ الإعدادات بنجاح!')
+        const data = await res.json()
+        if (data.success) {
+          alert('✅ تم حفظ الإعدادات بنجاح!')
+        } else {
+          alert('❌ حدث خطأ أثناء الحفظ')
+        }
       } else {
-        alert('❌ حدث خطأ أثناء الحفظ')
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        const errorMessage = errorData.error || 'حدث خطأ أثناء الحفظ'
+        
+        if (errorMessage.includes('Firebase not configured')) {
+          alert('❌ خطأ: Firebase غير مُعدّ في Vercel.\n\nيرجى إضافة Environment Variables في Vercel:\n- اذهب إلى Project Settings → Environment Variables\n- أضف جميع متغيرات Firebase من .env.local')
+        } else {
+          alert(`❌ خطأ: ${errorMessage}`)
+        }
       }
     } catch (error) {
       console.error('Error saving config:', error)
-      alert('❌ حدث خطأ أثناء الحفظ')
+      alert('❌ حدث خطأ أثناء الحفظ. تحقق من Console للمزيد من التفاصيل.')
     } finally {
       setSaving(false)
     }
