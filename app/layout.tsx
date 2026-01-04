@@ -101,8 +101,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://wa.me" />
         {/* Preload critical CSS */}
         <link rel="preload" href="/globals.css" as="style" />
-        {/* Preload critical font */}
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" as="style" />
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:url" content={ogImage} />
