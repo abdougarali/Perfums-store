@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { ref, onValue, get } from 'firebase/database'
+import { ref, onValue } from 'firebase/database'
 import { db } from './firebase'
 
 export interface Product {
@@ -37,28 +37,39 @@ export function useProducts() {
 
     const productsRef = ref(db, 'products')
     
-    // Use get() for initial load (faster, no real-time listener overhead)
-    // This is much faster than onValue() for one-time data fetching
-    get(productsRef)
-      .then((snapshot) => {
+    const unsubscribe = onValue(
+      productsRef,
+      (snapshot) => {
         const data = snapshot.val()
         if (data) {
           // Convert object to array if needed
           const productsArray = Array.isArray(data) ? data : Object.values(data)
-          setProducts(productsArray as Product[])
+          // Only update if data actually changed (prevents unnecessary re-renders)
+          setProducts(prev => {
+            const newData = productsArray as Product[]
+            // Simple comparison - update only if length or IDs changed
+            if (prev.length !== newData.length || 
+                prev.some((p, i) => p.id !== newData[i]?.id)) {
+              return newData
+            }
+            return prev
+          })
         } else {
           setProducts([])
         }
         setLoading(false)
         setError(null)
-      })
-      .catch((error) => {
+      },
+      (error) => {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching products:', error)
         }
         setError('Failed to load products')
         setLoading(false)
-      })
+      }
+    )
+
+    return () => unsubscribe()
   }, [])
 
   return { products, loading, error }
@@ -79,21 +90,24 @@ export function useStoreConfig() {
 
     const configRef = ref(db, 'config')
     
-    // Use get() for initial load (faster, no real-time listener overhead)
-    get(configRef)
-      .then((snapshot) => {
+    const unsubscribe = onValue(
+      configRef,
+      (snapshot) => {
         const data = snapshot.val()
         setConfig(data as StoreConfig)
         setLoading(false)
         setError(null)
-      })
-      .catch((error) => {
+      },
+      (error) => {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching config:', error)
         }
         setError('Failed to load config')
         setLoading(false)
-      })
+      }
+    )
+
+    return () => unsubscribe()
   }, [])
 
   return { config, loading, error }
