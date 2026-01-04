@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import imageCompression from 'browser-image-compression'
 import styles from './admin.module.css'
 import type { Product } from '@/lib/useFirebaseData'
@@ -872,10 +873,13 @@ export default function AdminPage() {
                           <div className={styles.imagePreviewContainer}>
                             {product.image ? (
                               <div className={styles.imagePreview}>
-                                <img
+                                <Image
                                   src={product.image.startsWith('data:') || product.image.startsWith('http') || product.image.startsWith('/') ? product.image : `/${product.image}`}
                                   alt={product.name || 'Product'}
+                                  fill
                                   className={styles.previewImage}
+                                  unoptimized={product.image.startsWith('data:')}
+                                  sizes="120px"
                                 />
                                 <button
                                   onClick={() => updateProduct(originalIndex, 'image', '')}
@@ -1113,7 +1117,7 @@ export default function AdminPage() {
                 )}
               </button>
               <p className={styles.saveHint}>
-                💡 نصيحة: بعد تعديل أي منتج، اضغط "حفظ جميع التغييرات" لتطبيق التعديلات
+                💡 نصيحة: بعد تعديل أي منتج، اضغط &quot;حفظ جميع التغييرات&quot; لتطبيق التعديلات
               </p>
             </div>
           )}
@@ -1265,10 +1269,13 @@ export default function AdminPage() {
                   <div className={styles.imagePreviewContainer}>
                     {newProduct.image ? (
                       <div className={styles.imagePreview}>
-                        <img
+                        <Image
                           src={newProduct.image.startsWith('data:') || newProduct.image.startsWith('http') || newProduct.image.startsWith('/') ? newProduct.image : `/${newProduct.image}`}
                           alt={newProduct.name || 'Product'}
+                          fill
                           className={styles.previewImage}
+                          unoptimized={newProduct.image.startsWith('data:')}
+                          sizes="120px"
                         />
                         <button
                           onClick={() => updateNewProduct('image', '')}

@@ -22,7 +22,7 @@ export default function HowToOrder() {
           {/* Step 2 */}
           <div className={styles.step}>
             <div className={styles.stepNumber}>2</div>
-            <p className={styles.stepText}>اختر الحجم واضغط "اطلب عبر واتساب"</p>
+            <p className={styles.stepText}>اختر الحجم واضغط &quot;اطلب عبر واتساب&quot;</p>
           </div>
 
           {/* Arrow */}
