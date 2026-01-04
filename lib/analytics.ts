@@ -73,7 +73,7 @@ export const trackPageView = (url: string): void => {
  */
 export const analytics = {
   // WhatsApp clicks
-  trackWhatsAppClick: (location: 'hero' | 'modal' | 'footer' | 'floating') => {
+  trackWhatsAppClick: (location: 'hero' | 'modal' | 'footer' | 'floating' | 'header') => {
     trackEvent('whatsapp_click', {
       event_category: 'engagement',
       event_label: location,
