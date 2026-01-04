@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'File is too large after compression', 
-          details: `Maximum size is 2MB for Base64 storage. Your file is ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB. Please use a smaller image.` 
+          details: `Maximum size is 2MB for Base64 storage. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please use a smaller image.` 
         },
         { status: 400 }
       )
