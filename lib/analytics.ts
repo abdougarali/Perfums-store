@@ -49,9 +49,7 @@ export const trackEvent = (
     })
   } catch (error) {
     // Silently fail to avoid breaking the app
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Analytics tracking error:', error)
-    }
+    console.warn('Analytics tracking error:', error)
   }
 }
 
