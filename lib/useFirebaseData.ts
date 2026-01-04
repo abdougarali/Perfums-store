@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { ref, onValue } from 'firebase/database'
+import { ref, onValue, get } from 'firebase/database'
 import { db } from './firebase'
 
 export interface Product {
@@ -37,37 +37,26 @@ export function useProducts() {
 
     const productsRef = ref(db, 'products')
     
-    const unsubscribe = onValue(
-      productsRef,
-      (snapshot) => {
+    // Use get() for initial load (faster, no real-time listener overhead)
+    // This is much faster than onValue() for one-time data fetching
+    get(productsRef)
+      .then((snapshot) => {
         const data = snapshot.val()
         if (data) {
           // Convert object to array if needed
           const productsArray = Array.isArray(data) ? data : Object.values(data)
-          // Only update if data actually changed (prevents unnecessary re-renders)
-          setProducts(prev => {
-            const newData = productsArray as Product[]
-            // Simple comparison - update only if length or IDs changed
-            if (prev.length !== newData.length || 
-                prev.some((p, i) => p.id !== newData[i]?.id)) {
-              return newData
-            }
-            return prev
-          })
+          setProducts(productsArray as Product[])
         } else {
           setProducts([])
         }
         setLoading(false)
         setError(null)
-      },
-      (error) => {
+      })
+      .catch((error) => {
         console.error('Error fetching products:', error)
         setError('Failed to load products')
         setLoading(false)
-      }
-    )
-
-    return () => unsubscribe()
+      })
   }, [])
 
   return { products, loading, error }
@@ -88,22 +77,19 @@ export function useStoreConfig() {
 
     const configRef = ref(db, 'config')
     
-    const unsubscribe = onValue(
-      configRef,
-      (snapshot) => {
+    // Use get() for initial load (faster, no real-time listener overhead)
+    get(configRef)
+      .then((snapshot) => {
         const data = snapshot.val()
         setConfig(data as StoreConfig)
         setLoading(false)
         setError(null)
-      },
-      (error) => {
+      })
+      .catch((error) => {
         console.error('Error fetching config:', error)
         setError('Failed to load config')
         setLoading(false)
-      }
-    )
-
-    return () => unsubscribe()
+      })
   }, [])
 
   return { config, loading, error }

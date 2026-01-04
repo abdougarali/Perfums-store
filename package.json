@@ -8,7 +8,8 @@
     "start": "next start -p 3005",
     "lint": "next lint",
     "migrate:firebase": "ts-node --project tsconfig.scripts.json scripts/migrate-to-firebase.ts",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "check-bundle": "node scripts/check-bundle-size.js"
   },
   "dependencies": {
     "browser-image-compression": "^2.0.2",
@@ -23,6 +24,7 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",

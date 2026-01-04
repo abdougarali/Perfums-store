@@ -35,6 +35,22 @@ export default function AdminPage() {
 
   const ITEMS_PER_PAGE = 3
 
+  // Helper function to calculate Base64 image size
+  const getImageSize = (imageString: string): { sizeKB: number; sizeMB: number; isBase64: boolean } => {
+    if (!imageString) return { sizeKB: 0, sizeMB: 0, isBase64: false }
+    
+    if (imageString.startsWith('data:')) {
+      // Base64 image: calculate size from base64 string
+      const base64String = imageString.split(',')[1] || ''
+      const sizeInBytes = (base64String.length * 3) / 4
+      const sizeKB = sizeInBytes / 1024
+      const sizeMB = sizeKB / 1024
+      return { sizeKB, sizeMB, isBase64: true }
+    }
+    
+    return { sizeKB: 0, sizeMB: 0, isBase64: false }
+  }
+
   // Load data on mount
   useEffect(() => {
     loadData()
@@ -393,12 +409,12 @@ export default function AdminPage() {
         document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
       
       const compressionOptions = {
-        maxSizeMB: 0.5, // Maximum file size in MB (500KB)
-        maxWidthOrHeight: 800, // Maximum width or height in pixels
+        maxSizeMB: 0.25, // Maximum file size in MB (250KB) - optimized for performance
+        maxWidthOrHeight: 600, // Maximum width or height in pixels - optimized for web
         useWebWorker: true, // Use web worker for better performance
         // Convert to WebP if supported (25-35% smaller than JPG/PNG)
         fileType: supportsWebP ? 'image/webp' : file.type,
-        initialQuality: 0.8, // 80% quality for WebP (good balance)
+        initialQuality: 0.75, // 75% quality for WebP (optimal balance between size and quality)
       }
 
       let compressedFile: File
@@ -466,12 +482,12 @@ export default function AdminPage() {
         document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
       
       const compressionOptions = {
-        maxSizeMB: 0.5, // Maximum file size in MB (500KB)
-        maxWidthOrHeight: 800, // Maximum width or height in pixels
+        maxSizeMB: 0.25, // Maximum file size in MB (250KB) - optimized for performance
+        maxWidthOrHeight: 600, // Maximum width or height in pixels - optimized for web
         useWebWorker: true, // Use web worker for better performance
         // Convert to WebP if supported (25-35% smaller than JPG/PNG)
         fileType: supportsWebP ? 'image/webp' : file.type,
-        initialQuality: 0.8, // 80% quality for WebP (good balance)
+        initialQuality: 0.75, // 75% quality for WebP (optimal balance between size and quality)
       }
 
       let compressedFile: File
@@ -942,6 +958,23 @@ export default function AdminPage() {
                                 >
                                   ✕
                                 </button>
+                                {/* Image size indicator */}
+                                {(() => {
+                                  const imageSize = getImageSize(product.image)
+                                  if (imageSize.isBase64) {
+                                    const isLarge = imageSize.sizeKB > 250
+                                    return (
+                                      <div className={`${styles.imageSizeBadge} ${isLarge ? styles.imageSizeLarge : styles.imageSizeGood}`}>
+                                        {imageSize.sizeMB > 1 
+                                          ? `${imageSize.sizeMB.toFixed(2)} MB`
+                                          : `${imageSize.sizeKB.toFixed(0)} KB`
+                                        }
+                                        {isLarge && <span className={styles.imageSizeWarning}> ⚠️ كبير</span>}
+                                      </div>
+                                    )
+                                  }
+                                  return null
+                                })()}
                               </div>
                             ) : (
                               <div className={styles.imagePlaceholder}>

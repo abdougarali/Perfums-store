@@ -18,13 +18,18 @@ const GRID_ITEMS_COUNT = 6 // 2 rows × 3 columns
 
 function ProductListing() {
   const { products: productsFromFirebase, loading, error } = useProducts()
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   
-  // Memoize products filtering and slicing
+  // Use static data immediately, then update with Firebase data when available
+  // This improves initial page load performance
   const { perfumesData, gridProducts, carouselProducts } = useMemo(() => {
-    // Fallback to static data if Firebase is not configured or fails
-    const allProducts = productsFromFirebase.length > 0 
-      ? productsFromFirebase 
-      : (perfumesDataStatic as Product[])
+    // Start with static data for immediate render
+    let allProducts = perfumesDataStatic as Product[]
+    
+    // Update with Firebase data if available (and not loading)
+    if (!loading && productsFromFirebase.length > 0) {
+      allProducts = productsFromFirebase
+    }
     
     // Filter: Only show active products
     const filtered = allProducts.filter(product => {
@@ -37,19 +42,7 @@ function ProductListing() {
       gridProducts: filtered.slice(0, GRID_ITEMS_COUNT),
       carouselProducts: filtered.slice(GRID_ITEMS_COUNT)
     }
-  }, [productsFromFirebase])
-  
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  
-  if (loading) {
-    return (
-      <section className={styles.section}>
-        <div className={styles.container}>
-          <p>جاري التحميل...</p>
-        </div>
-      </section>
-    )
-  }
+  }, [productsFromFirebase, loading])
 
   return (
     <section className={styles.section}>

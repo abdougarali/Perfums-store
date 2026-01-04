@@ -1,11 +1,7 @@
 import dynamic from 'next/dynamic'
 
-// Lazy load all components for better performance
-// Header is critical - load immediately but with SSR
-const Header = dynamic(() => import('@/components/Header'), {
-  loading: () => <div style={{ minHeight: '80px' }} />,
-  ssr: true, // Enable SSR for Header (critical above the fold)
-})
+// Import Header directly (critical above the fold)
+import Header from '@/components/Header'
 
 // ProductListing is critical - load immediately but with SSR
 const ProductListing = dynamic(() => import('@/components/ProductListing'), {

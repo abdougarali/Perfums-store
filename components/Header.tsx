@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import styles from './Header.module.css'
 import { useStoreConfig } from '@/lib/useFirebaseData'
 import { storeConfigData as fallbackConfig } from '@/lib/config'
@@ -8,7 +8,10 @@ import { analytics } from '@/lib/analytics'
 
 export default function Header() {
   const { config, loading } = useStoreConfig()
-  const storeConfigData = config || fallbackConfig
+  // Use fallback config immediately, update when Firebase data loads
+  const storeConfigData = useMemo(() => {
+    return config || fallbackConfig
+  }, [config])
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {

@@ -9,8 +9,10 @@ const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   weight: ['400', '600', '700'],
   variable: '--font-cairo',
-  display: 'swap', // Font display optimization
+  display: 'swap', // Font display optimization - show fallback immediately
   preload: true,
+  adjustFontFallback: true, // Better font fallback
+  fallback: ['system-ui', 'arial'], // Fast fallback fonts
 })
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
@@ -97,10 +99,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://wa.me" />
-        {/* Performance hints */}
-        <link rel="preconnect" href="https://wa.me" />
-        {/* Preload critical CSS */}
-        <link rel="preload" href="/globals.css" as="style" />
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:url" content={ogImage} />

@@ -61,8 +61,9 @@ function ProductCard({ perfume, onSelect, priority = false }: ProductCardProps) 
           onError={() => setImageLoading(false)}
           priority={priority}
           loading={priority ? undefined : 'lazy'}
-          quality={85}
+          quality={priority ? 85 : 75}
           unoptimized={perfume.image.startsWith('data:')}
+          decoding="async"
         />
       </div>
       <div className={styles.content}>
