@@ -19,14 +19,14 @@ export default function GoogleAnalytics() {
 
   return (
     <>
-      {/* Google Analytics Scripts */}
+      {/* Google Analytics Scripts - Load with lowest priority */}
       <Script
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
       <Script
         id="google-analytics"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
@@ -34,6 +34,7 @@ export default function GoogleAnalytics() {
             gtag('js', new Date());
             gtag('config', '${gaId}', {
               page_path: window.location.pathname,
+              send_page_view: false
             });
           `,
         }}

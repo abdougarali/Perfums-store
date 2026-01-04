@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef, startTransition } from 'react'
 import Image from 'next/image'
 import imageCompression from 'browser-image-compression'
 import styles from './admin.module.css'
@@ -30,6 +30,8 @@ export default function AdminPage() {
   const [savingProductId, setSavingProductId] = useState<string | null>(null) // product id being saved
   const [showAddProductModal, setShowAddProductModal] = useState(false) // show add product modal
   const [newProduct, setNewProduct] = useState<ExtendedProduct | null>(null) // new product being created
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const ITEMS_PER_PAGE = 3
 
@@ -46,10 +48,25 @@ export default function AdminPage() {
     }
   }, [toast])
 
+  // Debounce search query
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery])
+
   // Reset to page 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, filterActive])
+  }, [debouncedSearchQuery, filterActive])
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })
@@ -227,33 +244,41 @@ export default function AdminPage() {
     }
   }
 
-  const updateProduct = (index: number, field: keyof ExtendedProduct, value: any) => {
-    const updated = [...products]
-    updated[index] = { ...updated[index], [field]: value }
-    setProducts(updated)
-  }
+  const updateProduct = useCallback((index: number, field: keyof ExtendedProduct, value: any) => {
+    setProducts(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
+  }, [])
 
-  const updateProductSize = (productIndex: number, sizeIndex: number, field: 'size' | 'price', value: string | number) => {
-    const updated = [...products]
-    const sizes = [...updated[productIndex].sizes]
-    sizes[sizeIndex] = { ...sizes[sizeIndex], [field]: value }
-    updated[productIndex] = { ...updated[productIndex], sizes }
-    setProducts(updated)
-  }
+  const updateProductSize = useCallback((productIndex: number, sizeIndex: number, field: 'size' | 'price', value: string | number) => {
+    setProducts(prev => {
+      const updated = [...prev]
+      const sizes = [...updated[productIndex].sizes]
+      sizes[sizeIndex] = { ...sizes[sizeIndex], [field]: value }
+      updated[productIndex] = { ...updated[productIndex], sizes }
+      return updated
+    })
+  }, [])
 
-  const addProductSize = (productIndex: number) => {
-    const updated = [...products]
-    updated[productIndex].sizes.push({ size: '', price: 0 })
-    setProducts(updated)
-  }
+  const addProductSize = useCallback((productIndex: number) => {
+    setProducts(prev => {
+      const updated = [...prev]
+      updated[productIndex].sizes.push({ size: '', price: 0 })
+      return updated
+    })
+  }, [])
 
-  const removeProductSize = (productIndex: number, sizeIndex: number) => {
-    const updated = [...products]
-    updated[productIndex].sizes = updated[productIndex].sizes.filter((_, i) => i !== sizeIndex)
-    setProducts(updated)
-  }
+  const removeProductSize = useCallback((productIndex: number, sizeIndex: number) => {
+    setProducts(prev => {
+      const updated = [...prev]
+      updated[productIndex].sizes = updated[productIndex].sizes.filter((_, i) => i !== sizeIndex)
+      return updated
+    })
+  }, [])
 
-  const addProduct = () => {
+  const addProduct = useCallback(() => {
     // Open modal with empty product form
     const product: ExtendedProduct = {
       id: String(Date.now()),
@@ -267,7 +292,7 @@ export default function AdminPage() {
     }
     setNewProduct(product)
     setShowAddProductModal(true)
-  }
+  }, [products.length])
 
   const handleSaveNewProduct = () => {
     if (!newProduct) return
@@ -305,42 +330,46 @@ export default function AdminPage() {
     setNewProduct(null)
   }
 
-  const removeProduct = (index: number) => {
+  const removeProduct = useCallback((index: number) => {
     if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-      setProducts(products.filter((_, i) => i !== index))
+      setProducts(prev => prev.filter((_, i) => i !== index))
       showToast('تم حذف المنتج', 'success')
     }
-  }
+  }, [])
 
-  const toggleProductActive = (index: number) => {
-    const updated = [...products]
-    updated[index].active = !updated[index].active
-    setProducts(updated)
-  }
+  const toggleProductActive = useCallback((index: number) => {
+    setProducts(prev => {
+      const updated = [...prev]
+      updated[index].active = !updated[index].active
+      return updated
+    })
+  }, [])
 
-  const moveProduct = (index: number, direction: 'up' | 'down') => {
-    const updated = [...products]
-    const newIndex = direction === 'up' ? index - 1 : index + 1
-    
-    if (newIndex < 0 || newIndex >= updated.length) return
-    
-    // Swap orders
-    const tempOrder = updated[index].order || index
-    updated[index].order = updated[newIndex].order || newIndex
-    updated[newIndex].order = tempOrder
-    
-    // Swap products
-    const temp = updated[index]
-    updated[index] = updated[newIndex]
-    updated[newIndex] = temp
-    
-    setProducts(updated)
-  }
+  const moveProduct = useCallback((index: number, direction: 'up' | 'down') => {
+    setProducts(prev => {
+      const updated = [...prev]
+      const newIndex = direction === 'up' ? index - 1 : index + 1
+      
+      if (newIndex < 0 || newIndex >= updated.length) return prev
+      
+      // Swap orders
+      const tempOrder = updated[index].order || index
+      updated[index].order = updated[newIndex].order || newIndex
+      updated[newIndex].order = tempOrder
+      
+      // Swap products
+      const temp = updated[index]
+      updated[index] = updated[newIndex]
+      updated[newIndex] = temp
+      
+      return updated
+    })
+  }, [])
 
-  const updateConfig = (field: keyof StoreConfig, value: string) => {
+  const updateConfig = useCallback((field: keyof StoreConfig, value: string) => {
     if (!config) return
-    setConfig({ ...config, [field]: value })
-  }
+    setConfig(prev => prev ? { ...prev, [field]: value } : null)
+  }, [config])
 
   const handleImageUpload = async (productIndex: number, file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -521,9 +550,9 @@ export default function AdminPage() {
       filtered = filtered.filter(p => p.active === false)
     }
 
-    // Search
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+    // Search (using debounced query)
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase()
       filtered = filtered.filter(
         p =>
           p.name.toLowerCase().includes(query) ||
@@ -533,34 +562,53 @@ export default function AdminPage() {
     }
 
     return filtered
-  }, [products, searchQuery, filterActive])
+  }, [products, debouncedSearchQuery, filterActive])
 
   // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+  const paginationData = useMemo(() => {
+    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+    
+    return {
+      totalPages,
+      startIndex,
+      endIndex,
+      paginatedProducts
+    }
+  }, [filteredProducts, currentPage, ITEMS_PER_PAGE])
+
+  const { totalPages, startIndex, endIndex, paginatedProducts } = paginationData
 
   // Pagination handlers
-  const goToPage = (page: number) => {
+  const goToPage = useCallback((page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page)
       // Scroll to top of products list
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  }
+  }, [totalPages])
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      goToPage(currentPage - 1)
-    }
-  }
+  const goToPreviousPage = useCallback(() => {
+    setCurrentPage(prev => {
+      if (prev > 1) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return prev - 1
+      }
+      return prev
+    })
+  }, [])
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1)
-    }
-  }
+  const goToNextPage = useCallback(() => {
+    setCurrentPage(prev => {
+      if (prev < totalPages) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return prev + 1
+      }
+      return prev
+    })
+  }, [totalPages])
 
   // Statistics
   const stats = useMemo(() => {
@@ -730,7 +778,11 @@ export default function AdminPage() {
                 type="text"
                 placeholder="ابحث عن منتج..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  startTransition(() => {
+                    setSearchQuery(e.target.value)
+                  })
+                }}
                 className={styles.searchInput}
               />
             </div>
@@ -880,6 +932,8 @@ export default function AdminPage() {
                                   className={styles.previewImage}
                                   unoptimized={product.image.startsWith('data:')}
                                   sizes="120px"
+                                  loading="lazy"
+                                  quality={85}
                                 />
                                 <button
                                   onClick={() => updateProduct(originalIndex, 'image', '')}
@@ -1276,6 +1330,8 @@ export default function AdminPage() {
                           className={styles.previewImage}
                           unoptimized={newProduct.image.startsWith('data:')}
                           sizes="120px"
+                          loading="lazy"
+                          quality={85}
                         />
                         <button
                           onClick={() => updateNewProduct('image', '')}

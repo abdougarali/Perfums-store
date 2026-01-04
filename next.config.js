@@ -26,6 +26,14 @@ const nextConfig = {
 
   // Compression
   compress: true,
+  
+  // Production optimizations
+  swcMinify: true,
+  
+  // Experimental features for better performance
+  experimental: {
+    optimizeCss: true,
+  },
 
   // Headers for caching and security
   async headers() {
@@ -48,6 +56,28 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate'
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/image',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
