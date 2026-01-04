@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     default: storeConfig.storeName,
     template: `%s | ${storeConfig.storeName}`,
   },
-  description: 'اختر عطرك واطلب مباشرة عبر واتساب - عطور فاخرة لأناقة لا تُقاوم',
-  keywords: ['عطور', 'عطور فاخرة', 'عطور أصلية', 'متجر عطور', 'طلب عطر عبر واتساب', 'عطور تونس', 'عطور أصلية تونس'],
+  description: 'اختر عطرك واطلب مباشرة عبر واتساب - عطور فاخرة لأناقة لا تُقاوم. متجر عطور أصلية مع توصيل سريع ودفع عند الاستلام.',
+  keywords: ['عطور', 'عطور فاخرة', 'عطور أصلية', 'متجر عطور', 'طلب عطر عبر واتساب', 'عطور تونس', 'عطور أصلية تونس', 'عطور للرجال', 'عطور للنساء'],
   authors: [{ name: storeConfig.storeName }],
   creator: storeConfig.storeName,
   publisher: storeConfig.storeName,
@@ -95,10 +95,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Preload critical product images (first 3) */}
-        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(1).png .png`} />
-        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(2).png`} />
-        <link rel="preload" as="image" href={`${siteUrl}/images/Perfum_img(3).png`} />
+        {/* Performance hints */}
+        <link rel="preconnect" href="https://wa.me" />
+        <link rel="dns-prefetch" href="https://wa.me" />
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:url" content={ogImage} />

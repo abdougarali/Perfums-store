@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -26,7 +27,7 @@ interface ProductCarouselProps {
   onSelect: (product: Product) => void
 }
 
-export default function ProductCarousel({ products, onSelect }: ProductCarouselProps) {
+function ProductCarousel({ products, onSelect }: ProductCarouselProps) {
   if (products.length === 0) return null
 
   return (
@@ -63,3 +64,5 @@ export default function ProductCarousel({ products, onSelect }: ProductCarouselP
     </div>
   )
 }
+
+export default memo(ProductCarousel)

@@ -31,7 +31,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   // Use Firebase config if available, otherwise use fallback static data
   const storeConfigData = config || fallbackConfig
 
-  const [selectedSize, setSelectedSize] = useState<Size | null>(null)
+  const [selectedSizes, setSelectedSizes] = useState<Size[]>([])
   const [mounted, setMounted] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
   const bodyOverflowRef = useRef<string | null>(null)
@@ -40,9 +40,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   useEffect(() => {
     setMounted(true)
     setImageLoading(true) // Reset loading state when product changes
-    if (product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0])
-    }
+    setSelectedSizes([]) // Reset selected sizes when product changes
     
     // Track product view when modal opens
     analytics.trackProductView(product.id, product.name)
@@ -99,25 +97,42 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     }
   }, [mounted, onClose])
 
+  const handleSizeToggle = (size: Size) => {
+    setSelectedSizes(prev => {
+      const isSelected = prev.some(s => s.size === size.size)
+      if (isSelected) {
+        return prev.filter(s => s.size !== size.size)
+      } else {
+        return [...prev, size]
+      }
+    })
+  }
+
   const handleWhatsAppOrder = () => {
-    if (!selectedSize) return
+    if (selectedSizes.length === 0) return
 
     // Track order click (conversion event)
-    analytics.trackOrderClick(
-      product.id,
-      product.name,
-      selectedSize.size,
-      selectedSize.price
-    )
+    selectedSizes.forEach(size => {
+      analytics.trackOrderClick(
+        product.id,
+        product.name,
+        size.size,
+        size.price
+      )
+    })
     
     // Track WhatsApp click from modal
     analytics.trackWhatsAppClick('modal')
 
-    const message = `السلام عليكم، نحب نطلب عطر ${product.name} حجم ${selectedSize.size} بسعر ${selectedSize.price} TND.`
+    const sizesText = selectedSizes.map(s => `${s.size} (${s.price} TND)`).join('، ')
+    const totalPrice = selectedSizes.reduce((sum, s) => sum + s.price, 0)
+    const message = `السلام عليكم، نحب نطلب عطر ${product.name}:\n${sizesText}\nالمجموع: ${totalPrice} TND`
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://wa.me/${storeConfigData.whatsappNumber}?text=${encodedMessage}`
     window.open(whatsappUrl, '_blank')
   }
+
+  const totalPrice = selectedSizes.reduce((sum, size) => sum + size.price, 0)
 
   const modalContent = (
     <div 
@@ -140,16 +155,19 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   <div className={styles.spinner}></div>
                 </div>
               )}
-              <Image
-                src={product.image}
-                alt={`${product.name} - ${product.description}`}
-                fill
-                className={styles.productImageContent}
-                sizes="(max-width: 968px) 100vw, 50vw"
-                style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
-                onLoad={() => setImageLoading(false)}
-                priority
-              />
+        <Image
+          src={product.image}
+          alt={`${product.name} - ${product.description}`}
+          fill
+          className={styles.productImageContent}
+          sizes="(max-width: 968px) 100vw, 50vw"
+          style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
+          onLoad={() => setImageLoading(false)}
+          onError={() => setImageLoading(false)}
+          priority
+          quality={90}
+          unoptimized={product.image.startsWith('data:')}
+        />
             </div>
           </div>
 
@@ -158,40 +176,46 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             <p className={styles.productDescription}>{product.description}</p>
 
             <div className={styles.sizeSelector}>
-              <h3 className={styles.sizeTitle}>اختر الحجم:</h3>
+              <h3 className={styles.sizeTitle}>اختر الحجم (يمكن اختيار أكثر من حجم):</h3>
               <div className={styles.sizeOptions}>
-                {product.sizes.map((size) => (
-                  <button
+                {product.sizes.map((size) => {
+                  const isSelected = selectedSizes.some(s => s.size === size.size)
+                  return (
+                  <label
                     key={size.size}
-                    className={`${styles.sizeButton} ${
-                      selectedSize?.size === size.size ? styles.sizeButtonActive : ''
+                    className={`${styles.sizeOption} ${
+                      isSelected ? styles.sizeOptionActive : ''
                     }`}
-                    onClick={() => {
-                      setSelectedSize(size)
-                      // Track size selection
-                      analytics.trackSizeSelection(product.id, size.size, size.price)
-                    }}
                   >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => {
+                        handleSizeToggle(size)
+                        // Track size selection
+                        analytics.trackSizeSelection(product.id, size.size, size.price)
+                      }}
+                      className={styles.checkboxInput}
+                    />
                     <span className={styles.sizeLabel}>{size.size}</span>
-                    <span className={styles.sizePrice}>{size.price} TND</span>
-                  </button>
-                ))}
+                  </label>
+                )})}
               </div>
             </div>
 
-            {selectedSize && (
-              <div className={styles.priceDisplay}>
-                <span className={styles.priceLabel}>السعر:</span>
-                <span className={styles.priceValue}>{selectedSize.price} TND</span>
-              </div>
-            )}
+            <div className={styles.priceDisplay}>
+              <span className={styles.priceLabel}>السعر الإجمالي:</span>
+              <span className={`${styles.priceValue} ${selectedSizes.length === 0 ? styles.priceValuePlaceholder : ''}`}>
+                {selectedSizes.length > 0 ? `${totalPrice} TND` : 'اختر الحجم'}
+              </span>
+            </div>
 
             <button
               className={styles.orderButton}
               onClick={handleWhatsAppOrder}
-              disabled={!selectedSize}
+              disabled={selectedSizes.length === 0}
             >
-              اطلب عبر واتساب
+              <span>اطلب عبر واتساب</span>
             </button>
           </div>
         </div>

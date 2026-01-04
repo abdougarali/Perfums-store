@@ -1,0 +1,240 @@
+/* ============================================
+   Light Islamic Arabic Header
+   ============================================ */
+
+.header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(232, 201, 122, 0.15);
+  z-index: 100;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
+}
+
+.header.scrolled {
+  box-shadow: 0 4px 20px rgba(44, 44, 44, 0.08);
+  border-bottom-color: rgba(232, 201, 122, 0.25);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  direction: rtl;
+  position: relative;
+}
+
+/* Decorative Element in Center */
+.container::before {
+  content: '✦';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-secondary);
+  font-size: 4rem;
+  opacity: 0.7;
+  pointer-events: none;
+  font-weight: 300;
+}
+
+/* Logo Section */
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  max-width: fit-content;
+}
+
+.logoText {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-family: var(--font-cairo);
+  margin: 0;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
+.logoText::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 2px;
+  background: var(--color-gold-gradient);
+  border-radius: 2px;
+}
+
+.logoSubtext {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+  position: relative;
+  padding: 8px 0;
+  font-family: var(--font-cairo);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-gold-gradient);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.navLink:hover {
+  color: var(--color-secondary);
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+/* WhatsApp Button */
+.whatsappButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
+  border: 2px solid rgba(232, 201, 122, 0.3);
+  font-family: var(--font-cairo);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.whatsappButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
+}
+
+.whatsappButton svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Mobile Menu Toggle (for responsive) */
+.menuToggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .container {
+    padding: 14px 24px;
+    gap: 16px;
+  }
+
+  .container::before {
+    font-size: 3rem;
+    opacity: 0.6;
+  }
+
+  .logoText {
+    font-size: 1.6rem;
+  }
+
+  .logoSubtext {
+    font-size: 0.75rem;
+  }
+
+  .whatsappButton {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px 20px;
+    gap: 12px;
+  }
+
+  .logoText {
+    font-size: 1.4rem;
+  }
+
+  .whatsappButton {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .whatsappButton span {
+    display: none; /* Hide text on mobile, show icon only */
+  }
+
+  .whatsappButton {
+    padding: 12px;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px 16px;
+  }
+
+  .logoText {
+    font-size: 1.2rem;
+  }
+
+  .logoSubtext {
+    display: none;
+  }
+}

@@ -10,8 +10,26 @@
   padding: 24px;
   direction: rtl;
   min-height: 100vh;
-  background: var(--color-bg, #FAF9F7);
+  background: var(--color-bg);
   background-attachment: fixed;
+  /* Same background pattern as main page */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 120px,
+      rgba(232, 201, 122, 0.008) 120px,
+      rgba(232, 201, 122, 0.008) 122px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 120px,
+      rgba(232, 201, 122, 0.008) 120px,
+      rgba(232, 201, 122, 0.008) 122px
+    ),
+    radial-gradient(circle at 20% 30%, rgba(232, 201, 122, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(184, 160, 130, 0.015) 0%, transparent 50%);
 }
 
 /* ============================================
@@ -30,8 +48,8 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border: 4px solid rgba(232, 201, 122, 0.2);
+  border-top-color: var(--color-secondary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -41,9 +59,9 @@
 }
 
 .loadingText {
-  color: #fff;
+  color: var(--color-primary);
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* ============================================
@@ -52,26 +70,30 @@
 
 .header {
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   padding: 32px 40px;
   border-radius: 16px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(232, 201, 122, 0.15);
 }
 
 .header h1 {
   margin: 0 0 8px 0;
-  color: var(--color-primary, #1A2332);
+  color: var(--color-primary);
   font-size: 32px;
   font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
-  color: #718096;
+  color: var(--color-text-light);
   margin: 0;
   font-size: 16px;
 }
@@ -83,19 +105,20 @@
 
 .viewSiteButton {
   padding: 12px 24px;
-  background: var(--color-primary, #1A2332);
-  color: white;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
   text-decoration: none;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  border-radius: 12px;
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
+  border: 2px solid rgba(232, 201, 122, 0.3);
 }
 
 .viewSiteButton:hover {
   transform: translateY(-2px);
-  background: var(--color-primary-dark, #0F1419);
-  box-shadow: var(--shadow-lg, 0 8px 24px rgba(26, 35, 50, 0.16));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
 }
 
 /* ============================================
@@ -107,11 +130,11 @@
   gap: 8px;
   margin-bottom: 24px;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   padding: 8px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid rgba(232, 201, 122, 0.15);
 }
 
 .tab {
@@ -121,21 +144,21 @@
   cursor: pointer;
   border-radius: 8px;
   font-size: 15px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  color: #4a5568;
+  font-weight: 600;
+  transition: var(--transition);
+  color: var(--color-text);
   position: relative;
 }
 
 .tab:hover {
-  background: rgba(26, 35, 50, 0.1);
-  color: var(--color-primary, #1A2332);
+  background: rgba(232, 201, 122, 0.1);
+  color: var(--color-secondary);
 }
 
 .tab.active {
-  background: var(--color-primary, #1A2332);
-  color: white;
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-gold);
 }
 
 /* ============================================
@@ -158,9 +181,10 @@
 }
 
 .toast.success {
-  background: var(--color-secondary, #C9A961);
-  color: var(--color-primary, #1A2332);
-  font-weight: 600;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  box-shadow: var(--shadow-gold-lg);
 }
 
 .toast.error {
@@ -185,19 +209,32 @@
 
 .section {
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   margin-bottom: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(232, 201, 122, 0.15);
 }
 
 .sectionTitle {
   margin: 0 0 32px 0;
-  color: #1a202c;
+  color: var(--color-primary);
   font-size: 28px;
   font-weight: 700;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--color-gold-gradient);
+  border-radius: 2px;
 }
 
 .sectionHeader {
@@ -221,17 +258,18 @@
 }
 
 .statCard {
-  background: linear-gradient(135deg, var(--color-primary-dark, #0F1419) 0%, var(--color-primary, #1A2332) 50%, var(--color-primary-light, #2C3E50) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-bg-gray) 100%);
   padding: 32px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: var(--shadow-lg, 0 8px 24px rgba(26, 35, 50, 0.16));
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  color: white;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  color: var(--color-primary);
   position: relative;
   overflow: hidden;
+  border: 2px solid rgba(232, 201, 122, 0.15);
 }
 
 .statCard::before {
@@ -240,14 +278,15 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(201, 169, 97, 0.1) 0%, transparent 70%);
-  pointer-events: none;
+  height: 5px;
+  background: var(--color-gold-gradient);
+  border-radius: 16px 16px 0 0;
 }
 
 .statCard:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-xl, 0 16px 48px rgba(26, 35, 50, 0.20));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.3);
 }
 
 .statIcon {
@@ -256,21 +295,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(232, 201, 122, 0.15);
   border-radius: 12px;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 .statIcon svg {
   width: 32px;
   height: 32px;
-  color: white;
+  color: var(--color-secondary);
   opacity: 0.95;
 }
 
 .statCard:hover .statIcon {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(232, 201, 122, 0.25);
   transform: scale(1.05);
 }
 
@@ -283,7 +322,7 @@
 .statContent p {
   margin: 0;
   font-size: 16px;
-  opacity: 0.9;
+  color: var(--color-text-light);
 }
 
 .quickActions {
@@ -292,9 +331,9 @@
 
 .quickActions h3 {
   margin: 0 0 20px 0;
-  color: #1a202c;
+  color: var(--color-primary);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .quickActionsGrid {
@@ -306,13 +345,13 @@
 .quickActionButton {
   padding: 16px 24px;
   background: white;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 500;
-  color: #4a5568;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: var(--transition);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -328,10 +367,10 @@
 }
 
 .quickActionButton:hover {
-  border-color: var(--color-primary, #1A2332);
-  color: var(--color-primary, #1A2332);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  box-shadow: var(--shadow-gold);
 }
 
 /* ============================================
@@ -378,18 +417,12 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary, #1A2332);
-  box-shadow: 0 0 0 4px rgba(26, 35, 50, 0.1);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 4px rgba(232, 201, 122, 0.1);
 }
 
 .searchBox:focus-within .searchIcon {
-  color: var(--color-primary, #1A2332);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--color-primary, #1A2332);
-  box-shadow: 0 0 0 4px rgba(26, 35, 50, 0.1);
+  color: var(--color-secondary);
 }
 
 .filterButtons {
@@ -400,25 +433,27 @@
 
 .filterButton {
   padding: 12px 20px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   background: white;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
-  transition: all 0.3s ease;
+  color: var(--color-text);
+  transition: var(--transition);
 }
 
 .filterButton:hover {
-  border-color: var(--color-primary, #1A2332);
-  color: var(--color-primary, #1A2332);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
 }
 
 .filterButton.active {
-  background: var(--color-primary, #1A2332);
+  background: var(--color-gold-gradient);
   border-color: transparent;
-  color: white;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 /* ============================================
@@ -434,7 +469,7 @@
 .emptyState {
   text-align: center;
   padding: 60px 20px;
-  color: #718096;
+  color: var(--color-text-light);
   font-size: 18px;
 }
 
@@ -446,15 +481,33 @@
   background: white;
   padding: 28px;
   border-radius: 16px;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--color-border-light);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.productCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--color-gold-gradient);
+  border-radius: 16px 16px 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .productCard:hover {
-  border-color: var(--color-secondary, #C9A961);
-  box-shadow: var(--shadow-lg, 0 8px 24px rgba(26, 35, 50, 0.16));
+  border-color: rgba(232, 201, 122, 0.3);
+  box-shadow: var(--shadow-gold);
   transform: translateY(-2px);
+}
+
+.productCard:hover::before {
+  opacity: 1;
 }
 
 .productCardHeader {
@@ -463,7 +516,7 @@
   align-items: flex-start;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid var(--color-border);
   gap: 16px;
   flex-wrap: wrap;
 }
@@ -493,9 +546,9 @@
 }
 
 .orderButton:hover:not(:disabled) {
-  background: var(--color-primary, #1A2332);
-  color: white;
-  border-color: var(--color-primary, #1A2332);
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border-color: var(--color-secondary);
 }
 
 .orderButton:disabled {
@@ -505,7 +558,7 @@
 
 .productCardTitle {
   margin: 0 0 8px 0;
-  color: #1a202c;
+  color: var(--color-primary);
   font-size: 20px;
   font-weight: 600;
   display: flex;
@@ -515,25 +568,26 @@
 }
 
 .productNameBadge {
-  background: var(--color-secondary, #C9A961);
-  color: var(--color-primary, #1A2332);
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
   padding: 4px 12px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 .productMeta {
   display: flex;
   gap: 16px;
   font-size: 13px;
-  color: #718096;
+  color: var(--color-text-light);
 }
 
 .productId,
 .productOrder {
   padding: 4px 8px;
-  background: #f7fafc;
+  background: var(--color-bg-gray);
   border-radius: 4px;
 }
 
@@ -562,9 +616,9 @@
   position: relative;
   width: 50px;
   height: 26px;
-  background: #cbd5e0;
+  background: var(--color-border);
   border-radius: 13px;
-  transition: background 0.3s ease;
+  transition: var(--transition);
 }
 
 .toggleSlider::before {
@@ -581,7 +635,7 @@
 }
 
 .toggleSwitch input:checked + .toggleSlider {
-  background: var(--color-secondary, #C9A961);
+  background: var(--color-secondary);
 }
 
 .toggleSwitch input:checked + .toggleSlider::before {
@@ -591,7 +645,7 @@
 .toggleLabel {
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--color-text);
   min-width: 60px;
 }
 
@@ -622,7 +676,7 @@
 .formGroup label {
   display: block;
   margin-bottom: 8px;
-  color: #1a202c;
+  color: var(--color-primary);
   font-weight: 600;
   font-size: 14px;
 }
@@ -631,11 +685,11 @@
 .textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   box-sizing: border-box;
   background: white;
 }
@@ -643,8 +697,8 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: var(--color-primary, #1A2332);
-  box-shadow: 0 0 0 4px rgba(26, 35, 50, 0.1);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 4px rgba(232, 201, 122, 0.1);
 }
 
 .textarea {
@@ -655,7 +709,7 @@
 .helpText {
   display: block;
   margin-top: 6px;
-  color: #718096;
+  color: var(--color-text-light);
   font-size: 13px;
 }
 
@@ -680,8 +734,8 @@
   height: 120px;
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid #e2e8f0;
-  background: #f7fafc;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-gray);
 }
 
 .previewImage {
@@ -720,10 +774,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f7fafc;
-  border: 2px dashed #cbd5e0;
+  background: var(--color-bg-gray);
+  border: 2px dashed var(--color-border);
   border-radius: 12px;
-  color: #a0aec0;
+  color: var(--color-text-lighter);
 }
 
 .imagePlaceholder span {
@@ -746,16 +800,16 @@
 
 .uploadButton {
   padding: 12px 20px;
-  background: var(--color-secondary, #C9A961);
-  color: var(--color-primary, #1A2332);
-  border: none;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border: 2px solid rgba(232, 201, 122, 0.3);
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(26, 35, 50, 0.08));
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -770,9 +824,8 @@
 
 .uploadButton:hover {
   transform: translateY(-2px);
-  background: var(--color-secondary-light, #D4AF37);
-  color: var(--color-primary, #1A2332);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
 }
 
 .uploadButton:active {
@@ -786,9 +839,9 @@
 .sizesSection {
   margin-top: 8px;
   padding: 20px;
-  background: #f7fafc;
+  background: var(--color-bg-gray);
   border-radius: 12px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
 }
 
 .sizesSectionHeader {
@@ -804,7 +857,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-primary);
 }
 
 .sizesList {
@@ -822,35 +875,35 @@
 .sizeInput {
   flex: 1;
   padding: 10px 14px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 .sizeInput:focus {
   outline: none;
-  border-color: var(--color-primary, #1A2332);
-  box-shadow: 0 0 0 3px rgba(26, 35, 50, 0.1);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(232, 201, 122, 0.1);
 }
 
 .priceInput {
   flex: 1;
   padding: 10px 14px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 .priceInput:focus {
   outline: none;
-  border-color: var(--color-primary, #1A2332);
-  box-shadow: 0 0 0 3px rgba(26, 35, 50, 0.1);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(232, 201, 122, 0.1);
 }
 
 .currency {
-  color: #718096;
+  color: var(--color-text-light);
   font-size: 14px;
   font-weight: 500;
   min-width: 32px;
@@ -881,13 +934,13 @@
 .addSizeButton {
   padding: 10px 20px;
   background: white;
-  color: var(--color-primary, #1A2332);
-  border: 2px solid var(--color-primary, #1A2332);
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  transition: var(--transition);
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
@@ -903,10 +956,10 @@
 }
 
 .addSizeButton:hover {
-  background: var(--color-primary, #1A2332);
-  color: white;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  box-shadow: var(--shadow-gold);
 }
 
 /* ============================================
@@ -915,15 +968,15 @@
 
 .addButton {
   padding: 12px 24px;
-  background: var(--color-secondary, #C9A961);
-  color: var(--color-primary, #1A2332);
-  border: none;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border: 2px solid rgba(232, 201, 122, 0.3);
   border-radius: 10px;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-accent, 0 4px 20px rgba(201, 169, 97, 0.30));
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -939,8 +992,8 @@
 
 .addButton:hover {
   transform: translateY(-2px);
-  background: var(--color-secondary-light, #D4AF37);
-  box-shadow: var(--shadow-accent, 0 4px 20px rgba(201, 169, 97, 0.40));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
 }
 
 .deleteButton {
@@ -979,15 +1032,15 @@
 
 .saveProductButton {
   padding: 12px 24px;
-  background: var(--color-secondary, #C9A961);
-  color: var(--color-primary, #1A2332);
-  border: none;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border: 2px solid rgba(232, 201, 122, 0.3);
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(26, 35, 50, 0.08));
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1002,8 +1055,8 @@
 
 .saveProductButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: var(--color-secondary-light, #D4AF37);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
 }
 
 .saveProductButton:disabled {
@@ -1025,21 +1078,35 @@
 .saveButton {
   width: 100%;
   padding: 16px;
-  background: var(--color-primary, #1A2332);
-  color: white;
-  border: none;
+  background: var(--color-gold-gradient);
+  color: var(--color-primary-dark);
+  border: 2px solid rgba(232, 201, 122, 0.3);
   border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(26, 35, 50, 0.12));
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: var(--shadow-gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.saveButton svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.saveButton span {
+  display: inline-block;
 }
 
 .saveButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: var(--color-primary-dark, #0F1419);
-  box-shadow: var(--shadow-lg, 0 8px 24px rgba(26, 35, 50, 0.16));
+  box-shadow: var(--shadow-gold-lg);
+  border-color: rgba(232, 201, 122, 0.5);
 }
 
 .saveButton:disabled {
@@ -1051,7 +1118,7 @@
 .saveHint {
   margin-top: 12px;
   text-align: center;
-  color: #718096;
+  color: var(--color-text-light);
   font-size: 14px;
   font-style: italic;
 }
@@ -1074,15 +1141,15 @@
 .paginationInfo {
   margin-bottom: 20px;
   padding: 12px 16px;
-  background: #f7fafc;
+  background: var(--color-bg-gray);
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   text-align: center;
 }
 
 .paginationInfo p {
   margin: 0;
-  color: #4a5568;
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
 }
@@ -1116,11 +1183,11 @@
 }
 
 .paginationButton:hover:not(:disabled) {
-  border-color: var(--color-primary, #1A2332);
-  color: var(--color-primary, #1A2332);
-  background: #f7fafc;
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+  background: var(--color-bg-gray);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .paginationButton:disabled {
@@ -1161,18 +1228,18 @@
 }
 
 .paginationNumber:hover:not(.active) {
-  border-color: var(--color-primary, #1A2332);
-  color: var(--color-primary, #1A2332);
-  background: #f7fafc;
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+  background: var(--color-bg-gray);
   transform: translateY(-1px);
 }
 
 .paginationNumber.active {
-  background: var(--color-primary, #1A2332);
-  border-color: var(--color-primary, #1A2332);
-  color: white;
-  box-shadow: 0 2px 8px rgba(26, 35, 50, 0.2);
-  font-weight: 600;
+  background: var(--color-gold-gradient);
+  border-color: transparent;
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-gold);
+  font-weight: 700;
 }
 
 .paginationEllipsis {
@@ -1862,7 +1929,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px 32px;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 2px solid var(--color-border);
   position: sticky;
   top: 0;
   background: white;
@@ -1872,26 +1939,30 @@
 
 .modalHeader h2 {
   margin: 0;
-  color: var(--color-primary, #1A2332);
+  color: var(--color-primary);
   font-size: 24px;
   font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .modalCloseButton {
   background: none;
   border: none;
   font-size: 24px;
-  color: #718096;
+  color: var(--color-text-light);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   line-height: 1;
 }
 
 .modalCloseButton:hover {
-  background: #F7FAFC;
-  color: #1A2332;
+  background: var(--color-bg-gray);
+  color: var(--color-primary);
 }
 
 .modalBody {
@@ -1903,7 +1974,7 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 24px 32px;
-  border-top: 1px solid #E2E8F0;
+  border-top: 2px solid var(--color-border);
   position: sticky;
   bottom: 0;
   background: white;
@@ -1912,18 +1983,19 @@
 
 .cancelButton {
   padding: 12px 24px;
-  background: #F7FAFC;
-  color: #4A5568;
-  border: 1px solid #E2E8F0;
+  background: var(--color-bg-gray);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
 }
 
 .cancelButton:hover {
-  background: #EDF2F7;
-  border-color: #CBD5E0;
+  background: var(--color-bg);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
 }
 
 /* Responsive Modal */

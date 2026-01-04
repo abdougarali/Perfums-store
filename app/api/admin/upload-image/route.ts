@@ -31,11 +31,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 2MB for Base64 - to avoid database size issues)
+    // File is already compressed in the browser, just validate size
+    const originalSize = file.size
+    console.log('Received image (already compressed):', {
+      fileName: file.name,
+      size: `${(originalSize / 1024 / 1024).toFixed(2)}MB`,
+      type: file.type
+    })
+
+    // Validate final file size (max 2MB for Base64 - to avoid database size issues)
     const maxSize = 2 * 1024 * 1024 // 2MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File is too large', details: `Maximum size is 2MB for Base64 storage. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress the image or use a smaller file.` },
+        { 
+          error: 'File is too large after compression', 
+          details: `Maximum size is 2MB for Base64 storage. Your file is ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB. Please use a smaller image.` 
+        },
         { status: 400 }
       )
     }
@@ -48,8 +59,7 @@ export async function POST(request: NextRequest) {
     
     console.log('Image converted to Base64:', {
       fileName: file.name,
-      size: file.size,
-      type: file.type,
+      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
       base64Length: base64.length
     })
     
@@ -57,15 +67,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       url: dataUrl, 
       fileName: file.name,
-      isBase64: true 
+      isBase64: true
     })
   } catch (error: any) {
-    console.error('Error converting image to Base64:', error)
+    console.error('Error processing image:', error)
     
     return NextResponse.json(
       { 
         error: 'Failed to process image',
-        details: error?.message || 'Unknown error occurred while converting image to Base64.',
+        details: error?.message || 'Unknown error occurred while processing image.',
         fullError: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }

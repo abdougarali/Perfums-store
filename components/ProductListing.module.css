@@ -1,42 +1,84 @@
 .section {
-  padding: 60px 20px;
-  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-light) 100%);
+  padding: 40px 20px 80px;
+  background: linear-gradient(to bottom, #FFFFFF 0%, var(--color-bg-gray) 50%, #FFFFFF 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Light Islamic Pattern Background */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 50px,
+      rgba(232, 201, 122, 0.015) 50px,
+      rgba(232, 201, 122, 0.015) 52px
+    );
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
 }
 
 .container {
   max-width: 1280px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .title {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 3.5rem;
+  font-weight: 900;
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   color: var(--color-primary);
   font-family: var(--font-cairo);
   letter-spacing: -0.02em;
   position: relative;
-  padding-bottom: 20px;
+  padding: 20px 0 10px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Islamic Decorative Frame */
+.title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 4px;
+  background: var(--color-gold-gradient);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
 }
 
 .title::after {
-  content: '';
+  content: '✦';
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
-  border-radius: 2px;
+  color: var(--color-secondary);
+  font-size: 1.5rem;
+  opacity: 0.7;
 }
 
 .subtitle {
   text-align: center;
   font-size: 1.1rem;
   color: var(--color-text-light);
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   font-weight: 400;
 }
 
@@ -45,6 +87,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
   margin-bottom: 0;
+  margin-top: 0;
 }
 
 @media (max-width: 1024px) {
@@ -55,12 +98,13 @@
 
 @media (max-width: 768px) {
   .section {
-    padding: 40px 20px;
+    padding: 30px 20px 60px;
   }
 
   .title {
     font-size: 2.25rem;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    padding: 15px 0 8px;
   }
 
   .title::after {
@@ -69,7 +113,7 @@
 
   .subtitle {
     font-size: 1rem;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .grid {

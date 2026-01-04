@@ -5,41 +5,87 @@
 }
 
 :root {
-  /* Unisex Perfume Color Palette - Elegant, Sophisticated & Gender-Neutral */
-  --color-primary: #1A2332;
-  --color-primary-dark: #0F1419;
-  --color-primary-light: #2C3E50;
-  --color-secondary: #C9A961;
-  --color-secondary-light: #D4AF37;
-  --color-secondary-dark: #B8941F;
-  --color-accent: #8B7355;
-  --color-accent-light: #A68B6B;
-  --color-bg: #FAF9F7;
-  --color-bg-light: #FFFFFF;
-  --color-bg-gray: #F5F3F0;
-  --color-text: #1A2332;
-  --color-text-light: #5A6B7A;
-  --color-text-lighter: #8A9BAA;
-  --color-border: #E0DDD8;
-  --color-border-light: #F0EDE8;
+  /* Light Gulf Luxury Perfume Color Palette - Islamic Arabic Elegance */
+  /* Inspired by light Gulf perfume websites: Soft, Elegant, Bright */
+  --color-primary: #2C2C2C; /* Soft dark gray - readable but not harsh */
+  --color-primary-dark: #1A1A1A; /* Medium dark for contrast */
+  --color-primary-light: #4A4A4A; /* Light gray */
+  --color-secondary: #E8C97A; /* Soft light gold - elegant and bright */
+  --color-secondary-light: #F5D99F; /* Very light gold */
+  --color-secondary-dark: #D4AF37; /* Medium gold */
+  --color-accent: #B8A082; /* Soft beige brown - light traditional */
+  --color-accent-light: #D4C4B0; /* Very light beige */
+  --color-accent-dark: #9B8A6F; /* Medium beige */
+  --color-oud: #6B5D4A; /* Light oud wood color */
+  --color-cream: #FAF8F5; /* Very light cream */
+  --color-bg: #FFFFFF; /* Pure white - bright and clean */
+  --color-bg-light: #FFFFFF; /* Pure white */
+  --color-bg-gray: #FAF8F5; /* Very light cream gray */
+  --color-text: #2C2C2C; /* Soft dark gray - readable */
+  --color-text-light: #6B6B6B; /* Medium light gray */
+  --color-text-lighter: #9B9B9B; /* Light gray */
+  --color-border: #E8E3D8; /* Warm light border */
+  --color-border-light: #F5F1E8; /* Very light border */
+  --color-gold-gradient: linear-gradient(135deg, #E8C97A 0%, #D4AF37 50%, #B8A082 100%);
+  --color-light-gradient: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 50%, #F5F1E8 100%);
+  --color-soft-gradient: linear-gradient(135deg, #F5F1E8 0%, #FAF8F5 50%, #FFFFFF 100%);
   --font-cairo: var(--font-cairo);
-  --shadow-sm: 0 1px 3px rgba(26, 35, 50, 0.08);
-  --shadow-md: 0 4px 12px rgba(26, 35, 50, 0.12);
-  --shadow-lg: 0 8px 24px rgba(26, 35, 50, 0.16);
-  --shadow-xl: 0 16px 48px rgba(26, 35, 50, 0.20);
-  --shadow-accent: 0 4px 20px rgba(201, 169, 97, 0.30);
+  --shadow-sm: 0 1px 3px rgba(44, 44, 44, 0.06);
+  --shadow-md: 0 4px 12px rgba(44, 44, 44, 0.08);
+  --shadow-lg: 0 8px 24px rgba(44, 44, 44, 0.10);
+  --shadow-xl: 0 16px 48px rgba(44, 44, 44, 0.12);
+  --shadow-gold: 0 4px 20px rgba(232, 201, 122, 0.25);
+  --shadow-gold-lg: 0 8px 32px rgba(232, 201, 122, 0.35);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
-  font-family: var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-cairo), 'Amiri', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.7;
+  line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'kern' 1;
   text-rendering: optimizeLegibility;
+  background-image: 
+    /* Light Islamic 8-pointed star pattern - very subtle */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 120px,
+      rgba(232, 201, 122, 0.008) 120px,
+      rgba(232, 201, 122, 0.008) 122px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 120px,
+      rgba(232, 201, 122, 0.008) 120px,
+      rgba(232, 201, 122, 0.008) 122px
+    ),
+    /* Very light radial gradients */
+    radial-gradient(circle at 20% 30%, rgba(232, 201, 122, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(184, 160, 130, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(232, 201, 122, 0.008) 0%, transparent 60%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Very subtle light arabesque pattern overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(232, 201, 122, 0.01) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(184, 160, 130, 0.01) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
 }
 
 a {

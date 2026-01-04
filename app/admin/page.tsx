@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import imageCompression from 'browser-image-compression'
 import styles from './admin.module.css'
 import type { Product } from '@/lib/useFirebaseData'
 import type { StoreConfig } from '@/lib/config'
@@ -350,8 +351,43 @@ export default function AdminPage() {
     setUploadingImage(product.id)
 
     try {
+      // Compress image before uploading
+      const originalSize = file.size
+      console.log('Compressing image...', {
+        fileName: file.name,
+        originalSize: `${(originalSize / 1024 / 1024).toFixed(2)}MB`
+      })
+
+      // Check if browser supports WebP
+      const supportsWebP = typeof document !== 'undefined' && 
+        document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
+      
+      const compressionOptions = {
+        maxSizeMB: 0.5, // Maximum file size in MB (500KB)
+        maxWidthOrHeight: 800, // Maximum width or height in pixels
+        useWebWorker: true, // Use web worker for better performance
+        // Convert to WebP if supported (25-35% smaller than JPG/PNG)
+        fileType: supportsWebP ? 'image/webp' : file.type,
+        initialQuality: 0.8, // 80% quality for WebP (good balance)
+      }
+
+      let compressedFile: File
+      try {
+        compressedFile = await imageCompression(file, compressionOptions)
+        const reduction = ((1 - compressedFile.size / originalSize) * 100).toFixed(1)
+        console.log('Image compressed:', {
+          originalSize: `${(originalSize / 1024 / 1024).toFixed(2)}MB`,
+          compressedSize: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+          reduction: `${reduction}%`
+        })
+        showToast(`📦 جاري ضغط الصورة... (تم تقليل ${reduction}%)`, 'success')
+      } catch (compressionError) {
+        console.warn('Compression failed, using original file:', compressionError)
+        compressedFile = file
+      }
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', compressedFile)
 
       const res = await fetch('/api/admin/upload-image', {
         method: 'POST',
@@ -388,8 +424,43 @@ export default function AdminPage() {
     setUploadingImage('new-product')
 
     try {
+      // Compress image before uploading
+      const originalSize = file.size
+      console.log('Compressing image...', {
+        fileName: file.name,
+        originalSize: `${(originalSize / 1024 / 1024).toFixed(2)}MB`
+      })
+
+      // Check if browser supports WebP
+      const supportsWebP = typeof document !== 'undefined' && 
+        document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
+      
+      const compressionOptions = {
+        maxSizeMB: 0.5, // Maximum file size in MB (500KB)
+        maxWidthOrHeight: 800, // Maximum width or height in pixels
+        useWebWorker: true, // Use web worker for better performance
+        // Convert to WebP if supported (25-35% smaller than JPG/PNG)
+        fileType: supportsWebP ? 'image/webp' : file.type,
+        initialQuality: 0.8, // 80% quality for WebP (good balance)
+      }
+
+      let compressedFile: File
+      try {
+        compressedFile = await imageCompression(file, compressionOptions)
+        const reduction = ((1 - compressedFile.size / originalSize) * 100).toFixed(1)
+        console.log('Image compressed:', {
+          originalSize: `${(originalSize / 1024 / 1024).toFixed(2)}MB`,
+          compressedSize: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+          reduction: `${reduction}%`
+        })
+        showToast(`📦 جاري ضغط الصورة... (تم تقليل ${reduction}%)`, 'success')
+      } catch (compressionError) {
+        console.warn('Compression failed, using original file:', compressionError)
+        compressedFile = file
+      }
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', compressedFile)
 
       const res = await fetch('/api/admin/upload-image', {
         method: 'POST',
@@ -1019,7 +1090,27 @@ export default function AdminPage() {
                 disabled={saving}
                 className={styles.saveButton}
               >
-                {saving ? '⏳ جاري الحفظ...' : '💾 حفظ جميع التغييرات'}
+                {saving ? (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="31.416" strokeDashoffset="31.416">
+                        <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+                        <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+                      </circle>
+                    </svg>
+                    <span>جاري الحفظ...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M17 21V13H7V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 3V8H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 13H15M9 17H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>حفظ جميع التغييرات</span>
+                  </>
+                )}
               </button>
               <p className={styles.saveHint}>
                 💡 نصيحة: بعد تعديل أي منتج، اضغط "حفظ جميع التغييرات" لتطبيق التعديلات
@@ -1110,7 +1201,26 @@ export default function AdminPage() {
             disabled={saving}
             className={styles.saveButton}
           >
-            {saving ? '⏳ جاري الحفظ...' : '💾 حفظ الإعدادات'}
+            {saving ? (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="31.416" strokeDashoffset="31.416">
+                    <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+                  </circle>
+                </svg>
+                <span>جاري الحفظ...</span>
+              </>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 12V7H5V12M19 12L17 14H7L5 12M19 12H21M5 12H3M17 14V19H7V14M17 14H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 12L9 19M15 12V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>حفظ الإعدادات</span>
+              </>
+            )}
           </button>
         </section>
       )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, memo } from 'react'
 import Image from 'next/image'
 import styles from './ProductCard.module.css'
 import { analytics } from '@/lib/analytics'
@@ -24,10 +24,17 @@ interface ProductCardProps {
   priority?: boolean
 }
 
-export default function ProductCard({ perfume, onSelect, priority = false }: ProductCardProps) {
+function ProductCard({ perfume, onSelect, priority = false }: ProductCardProps) {
   const [imageLoading, setImageLoading] = useState(true)
-  const minPrice = Math.min(...perfume.sizes.map(s => s.price))
-  const maxPrice = Math.max(...perfume.sizes.map(s => s.price))
+  
+  // Memoize price calculations
+  const { minPrice, maxPrice } = useMemo(() => {
+    const prices = perfume.sizes.map(s => s.price)
+    return {
+      minPrice: Math.min(...prices),
+      maxPrice: Math.max(...prices)
+    }
+  }, [perfume.sizes])
 
   const handleSelectClick = () => {
     // Track product card click
@@ -51,8 +58,11 @@ export default function ProductCard({ perfume, onSelect, priority = false }: Pro
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
           onLoad={() => setImageLoading(false)}
+          onError={() => setImageLoading(false)}
           priority={priority}
           loading={priority ? undefined : 'lazy'}
+          quality={85}
+          unoptimized={perfume.image.startsWith('data:')}
         />
       </div>
       <div className={styles.content}>
@@ -73,3 +83,4 @@ export default function ProductCard({ perfume, onSelect, priority = false }: Pro
   )
 }
 
+export default memo(ProductCard)

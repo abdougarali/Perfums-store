@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ref, onValue } from 'firebase/database'
 import { db } from './firebase'
 
@@ -44,7 +44,16 @@ export function useProducts() {
         if (data) {
           // Convert object to array if needed
           const productsArray = Array.isArray(data) ? data : Object.values(data)
-          setProducts(productsArray as Product[])
+          // Only update if data actually changed (prevents unnecessary re-renders)
+          setProducts(prev => {
+            const newData = productsArray as Product[]
+            // Simple comparison - update only if length or IDs changed
+            if (prev.length !== newData.length || 
+                prev.some((p, i) => p.id !== newData[i]?.id)) {
+              return newData
+            }
+            return prev
+          })
         } else {
           setProducts([])
         }

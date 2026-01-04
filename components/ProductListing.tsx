@@ -1,40 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, memo } from 'react'
+import dynamic from 'next/dynamic'
 import ProductCard from './ProductCard'
-import ProductModal from './ProductModal'
 import ProductCarousel from './ProductCarousel'
 import { useProducts, type Product } from '@/lib/useFirebaseData'
 import perfumesDataStatic from '@/data/perfumes.json'
 import styles from './ProductListing.module.css'
 
+// Lazy load ProductModal - only load when needed
+const ProductModal = dynamic(() => import('./ProductModal'), {
+  loading: () => null,
+  ssr: false,
+})
+
 const GRID_ITEMS_COUNT = 6 // 2 rows × 3 columns
 
-export default function ProductListing() {
+function ProductListing() {
   const { products: productsFromFirebase, loading, error } = useProducts()
   
-  // Fallback to static data if Firebase is not configured or fails
-  const allProducts = productsFromFirebase.length > 0 
-    ? productsFromFirebase 
-    : (perfumesDataStatic as Product[])
-  
-  // Filter: Only show active products
-  // Products with active: false or undefined (in static data) should be shown by default
-  // Only hide products explicitly marked as active: false
-  const perfumesData = allProducts.filter(product => {
-    // If active is explicitly false, hide it
-    if (product.active === false) return false
-    // Otherwise, show it (active === true or active === undefined)
-    return true
-  })
+  // Memoize products filtering and slicing
+  const { perfumesData, gridProducts, carouselProducts } = useMemo(() => {
+    // Fallback to static data if Firebase is not configured or fails
+    const allProducts = productsFromFirebase.length > 0 
+      ? productsFromFirebase 
+      : (perfumesDataStatic as Product[])
+    
+    // Filter: Only show active products
+    const filtered = allProducts.filter(product => {
+      if (product.active === false) return false
+      return true
+    })
+    
+    return {
+      perfumesData: filtered,
+      gridProducts: filtered.slice(0, GRID_ITEMS_COUNT),
+      carouselProducts: filtered.slice(GRID_ITEMS_COUNT)
+    }
+  }, [productsFromFirebase])
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-
-  // First 6 items for grid (2 rows)
-  const gridProducts = perfumesData.slice(0, GRID_ITEMS_COUNT)
-  
-  // Remaining items for carousel
-  const carouselProducts = perfumesData.slice(GRID_ITEMS_COUNT)
   
   if (loading) {
     return (
@@ -82,3 +87,4 @@ export default function ProductListing() {
   )
 }
 
+export default memo(ProductListing)
