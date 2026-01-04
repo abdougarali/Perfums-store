@@ -53,7 +53,9 @@ export function useProducts() {
         setError(null)
       })
       .catch((error) => {
-        console.error('Error fetching products:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching products:', error)
+        }
         setError('Failed to load products')
         setLoading(false)
       })
@@ -86,7 +88,9 @@ export function useStoreConfig() {
         setError(null)
       })
       .catch((error) => {
-        console.error('Error fetching config:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching config:', error)
+        }
         setError('Failed to load config')
         setLoading(false)
       })
