@@ -525,6 +525,10 @@
 }
 
 @media (max-width: 968px) {
+  .overlay {
+    padding: 15px;
+  }
+
   .modal {
     max-width: 95%;
     max-height: 98vh;
@@ -544,13 +548,11 @@
     padding: 20px;
   }
 
-  .imageText {
-    font-size: 1.8rem;
-  }
-
   .detailsSection {
-    padding: 24px;
-    overflow: visible;
+    padding: 30px 24px;
+    gap: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .productName {
@@ -563,13 +565,20 @@
     font-size: 0.95rem;
     line-height: 1.75;
     padding: 16px 18px;
-    margin-bottom: 24px;
-    /* Removed line-clamp */
+    margin-bottom: 20px;
+  }
+
+  .sizeTitle {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+  }
+
+  .sizeOptions {
+    gap: 10px;
   }
 
   .sizeOption {
-    padding: 12px 16px;
-    gap: 12px;
+    gap: 10px;
   }
   
   .checkboxInput {
@@ -581,69 +590,98 @@
   .checkboxInput:checked::after {
     font-size: 12px;
   }
+
+  .sizeLabel {
+    font-size: 1rem;
+  }
+
+  .priceDisplay {
+    padding: 18px 22px;
+    margin-bottom: 0;
+  }
+
+  .priceLabel {
+    font-size: 1.1rem;
+  }
+
+  .priceValue {
+    font-size: 1.7rem;
+    min-width: 120px;
+  }
+
+  .orderButton {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 768px) {
   .overlay {
     padding: 0;
+    align-items: flex-end;
   }
 
   .modal {
     max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
-    height: 100vh;
+    max-height: 95vh;
+    border-radius: 24px 24px 0 0;
+    height: auto;
+    margin-top: auto;
   }
 
   .modalContent {
-    max-height: 100vh;
-    height: 100vh;
+    max-height: 95vh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .closeButton {
     top: 12px;
     left: 12px;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+    background: rgba(0, 0, 0, 0.7);
   }
 
   .imageSection {
-    height: 200px;
-    min-height: 200px;
+    height: 220px;
+    min-height: 220px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
   }
 
   .productImage {
     padding: 15px;
   }
 
-  .imageText {
-    font-size: 1.4rem;
-  }
-
   .detailsSection {
-    padding: 20px 16px;
-    overflow: visible;
+    padding: 24px 20px;
+    gap: 18px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    min-height: 0;
   }
 
   .productName {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
     padding-bottom: 10px;
   }
 
   .productName::after {
-    width: 40px;
-    height: 2px;
+    width: 50px;
+    height: 3px;
   }
 
   .productDescription {
     font-size: 0.9rem;
     line-height: 1.7;
     padding: 14px 16px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     text-align: right;
-    /* Removed line-clamp */
   }
 
   .sizeSelector {
@@ -651,107 +689,23 @@
   }
 
   .sizeTitle {
-    font-size: 1rem;
-    margin-bottom: 10px;
-  }
-
-  .sizeOptions {
-    gap: 8px;
-    flex-direction: row;
-  }
-
-  .sizeOption {
-    padding: 0;
-    gap: 6px;
-  }
-  
-  .checkboxInput {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-  }
-  
-  .checkboxInput:checked::after {
-    font-size: 10px;
-  }
-  
-  .sizeLabel {
-    font-size: 0.95rem;
-  }
-
-  .sizeLabel {
-    font-size: 1rem;
-  }
-
-  .sizePrice {
-    font-size: 0.95rem;
-  }
-
-  .priceDisplay {
-    padding: 16px 20px;
-    margin-bottom: 16px;
-  }
-
-  .priceLabel {
-    font-size: 1rem;
-  }
-
-  .priceValue {
-    font-size: 1.4rem;
-  }
-
-  .orderButton {
-    padding: 14px 28px;
-    font-size: 1rem;
-    border-radius: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .imageSection {
-    height: 180px;
-    min-height: 180px;
-  }
-
-  .imageText {
-    font-size: 1.2rem;
-  }
-
-  .detailsSection {
-    padding: 16px 14px;
-    overflow: visible;
-  }
-
-  .productName {
-    font-size: 1.25rem;
-    margin-bottom: 8px;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
     padding-bottom: 8px;
   }
 
-  .productDescription {
-    font-size: 0.85rem;
-    line-height: 1.65;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    /* Removed line-clamp */
-  }
-
-  .sizeSelector {
-    margin-bottom: 12px;
-  }
-
-  .sizeTitle {
-    font-size: 0.95rem;
-    margin-bottom: 8px;
+  .sizeTitle::after {
+    width: 50px;
+    height: 2px;
   }
 
   .sizeOptions {
     gap: 10px;
     flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .sizeOption {
-    padding: 0;
     gap: 8px;
   }
   
@@ -764,22 +718,138 @@
   .checkboxInput:checked::after {
     font-size: 11px;
   }
-
+  
   .sizeLabel {
     font-size: 0.95rem;
   }
 
-  .sizePrice {
+  .priceDisplay {
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    min-height: 65px;
+  }
+
+  .priceLabel {
+    font-size: 1rem;
+  }
+
+  .priceValue {
+    font-size: 1.5rem;
+    min-width: 110px;
+  }
+
+  .orderButton {
+    padding: 16px 28px;
+    font-size: 1rem;
+    border-radius: 12px;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 98vh;
+  }
+
+  .modalContent {
+    max-height: 98vh;
+  }
+
+  .closeButton {
+    top: 10px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  .imageSection {
+    height: 200px;
+    min-height: 200px;
+  }
+
+  .productImage {
+    padding: 12px;
+  }
+
+  .detailsSection {
+    padding: 20px 16px;
+    gap: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .productName {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .productName::after {
+    width: 40px;
+    height: 2px;
+  }
+
+  .productDescription {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    text-align: right;
+  }
+
+  .sizeSelector {
+    margin-bottom: 14px;
+  }
+
+  .sizeTitle {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+  }
+
+  .sizeTitle::after {
+    width: 40px;
+    height: 2px;
+  }
+
+  .sizeOptions {
+    gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sizeOption {
+    gap: 6px;
+  }
+  
+  .checkboxInput {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+  }
+  
+  .checkboxInput:checked::after {
+    font-size: 10px;
+  }
+
+  .sizeLabel {
     font-size: 0.9rem;
-    align-self: flex-end;
   }
 
   .priceDisplay {
     padding: 14px 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    margin-bottom: 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 14px;
+    min-height: 60px;
   }
 
   .priceLabel {
@@ -787,12 +857,119 @@
   }
 
   .priceValue {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
+    min-width: 100px;
+    text-align: left;
   }
 
   .orderButton {
-    padding: 12px 24px;
+    padding: 14px 24px;
     font-size: 0.95rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .modal {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .closeButton {
+    top: 8px;
+    left: 8px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .imageSection {
+    height: 180px;
+    min-height: 180px;
+  }
+
+  .productImage {
+    padding: 10px;
+  }
+
+  .detailsSection {
+    padding: 16px 12px;
+    gap: 14px;
+  }
+
+  .productName {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+
+  .productName::after {
+    width: 35px;
+    height: 2px;
+  }
+
+  .productDescription {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+
+  .sizeSelector {
+    margin-bottom: 12px;
+  }
+
+  .sizeTitle {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+  }
+
+  .sizeTitle::after {
+    width: 35px;
+    height: 2px;
+  }
+
+  .sizeOptions {
+    gap: 6px;
+  }
+
+  .sizeOption {
+    gap: 5px;
+  }
+  
+  .checkboxInput {
+    width: 15px;
+    height: 15px;
+  }
+  
+  .checkboxInput:checked::after {
+    font-size: 9px;
+  }
+
+  .sizeLabel {
+    font-size: 0.85rem;
+  }
+
+  .priceDisplay {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    min-height: 55px;
+    flex-direction: row;
+  }
+
+  .priceLabel {
+    font-size: 0.9rem;
+  }
+
+  .priceValue {
+    font-size: 1.25rem;
+    min-width: 90px;
+  }
+
+  .orderButton {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    border-radius: 8px;
   }
 }
 
