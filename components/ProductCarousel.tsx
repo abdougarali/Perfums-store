@@ -5,6 +5,11 @@ import dynamic from 'next/dynamic'
 import ProductCard from './ProductCard'
 import styles from './ProductCarousel.module.css'
 
+// Import Swiper CSS statically (required for CSS to work)
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+
 // Lazy load Swiper components to reduce initial bundle size
 const Swiper = dynamic(
   () => import('swiper/react').then(mod => mod.Swiper),
@@ -39,13 +44,8 @@ function ProductCarousel({ products, onSelect }: ProductCarouselProps) {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    // Load Swiper modules and CSS only when component mounts
-    Promise.all([
-      import('swiper/modules').then(mod => mod),
-      import('swiper/css'),
-      import('swiper/css/navigation'),
-      import('swiper/css/pagination')
-    ]).then(([modulesMod]) => {
+    // Load Swiper modules only when component mounts (CSS is already imported statically)
+    import('swiper/modules').then((modulesMod) => {
       setModules(modulesMod)
       setIsReady(true)
     })
