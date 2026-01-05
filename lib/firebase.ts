@@ -17,7 +17,8 @@ const isFirebaseConfigured = () => {
 }
 
 // Initialize Firebase only if configured
-if (isFirebaseConfigured()) {
+// Defer initialization to reduce initial bundle impact
+if (typeof window !== 'undefined' && isFirebaseConfigured()) {
   try {
     // Use existing app if available
     if (getApps().length === 0) {

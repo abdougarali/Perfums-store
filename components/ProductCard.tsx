@@ -55,7 +55,7 @@ function ProductCard({ perfume, onSelect, priority = false }: ProductCardProps) 
           alt={`${perfume.name} - ${perfume.description}`}
           fill
           className={styles.productImage}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
           style={{ objectFit: 'cover', opacity: imageLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
           onLoad={() => setImageLoading(false)}
           onError={() => setImageLoading(false)}

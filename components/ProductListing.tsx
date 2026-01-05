@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, memo } from 'react'
+import { useState, useMemo, memo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import ProductCard from './ProductCard'
 import ProductCarousel from './ProductCarousel'
@@ -8,7 +8,7 @@ import { useProducts, type Product } from '@/lib/useFirebaseData'
 import perfumesDataStatic from '@/data/perfumes.json'
 import styles from './ProductListing.module.css'
 
-// Lazy load ProductModal - only load when needed
+// Lazy load ProductModal - only load when needed (prefetch on hover)
 const ProductModal = dynamic(() => import('./ProductModal'), {
   loading: () => null,
   ssr: false,
@@ -19,6 +19,11 @@ const GRID_ITEMS_COUNT = 6 // 2 rows × 3 columns
 function ProductListing() {
   const { products: productsFromFirebase, loading, error } = useProducts()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  
+  // Memoize product selection handler
+  const handleProductSelect = useCallback((product: Product) => {
+    setSelectedProduct(product)
+  }, [])
   
   // Use static data immediately, then update with Firebase data when available
   // This improves initial page load performance
@@ -56,7 +61,7 @@ function ProductListing() {
             <ProductCard
               key={perfume.id}
               perfume={perfume}
-              onSelect={() => setSelectedProduct(perfume)}
+              onSelect={() => handleProductSelect(perfume)}
               priority={index < 3} // Priority for first 3 images (above the fold)
             />
           ))}
@@ -66,7 +71,7 @@ function ProductListing() {
         {carouselProducts.length > 0 && (
           <ProductCarousel
             products={carouselProducts}
-            onSelect={(product) => setSelectedProduct(product)}
+            onSelect={handleProductSelect}
           />
         )}
       </div>

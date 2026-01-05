@@ -32,7 +32,41 @@ const nextConfig = {
   
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: ['swiper'], // Tree-shake Swiper imports
+    optimizePackageImports: ['swiper', 'firebase'], // Tree-shake Swiper and Firebase imports
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Optimize client-side bundle
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            // Separate Firebase into its own chunk
+            firebase: {
+              name: 'firebase',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
+              priority: 20,
+            },
+            // Separate Swiper into its own chunk
+            swiper: {
+              name: 'swiper',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/]swiper[\\/]/,
+              priority: 20,
+            },
+          },
+        },
+      }
+    }
+    return config
   },
 
   // Headers for caching and security

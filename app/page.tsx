@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic'
+import LazySection from '@/components/LazySection'
 
 // Import Header directly (critical above the fold)
 import Header from '@/components/Header'
@@ -9,24 +10,20 @@ const ProductListing = dynamic(() => import('@/components/ProductListing'), {
   ssr: true, // Enable SSR for ProductListing (critical above the fold)
 })
 
-// Lazy load below-the-fold components with intersection observer
+// Lazy load below-the-fold components - only load when in viewport
 const HowToOrder = dynamic(() => import('@/components/HowToOrder'), {
-  loading: () => <div style={{ minHeight: '200px' }} />,
   ssr: false,
 })
 
 const TrustSection = dynamic(() => import('@/components/TrustSection'), {
-  loading: () => <div style={{ minHeight: '200px' }} />,
   ssr: false,
 })
 
 const FAQ = dynamic(() => import('@/components/FAQ'), {
-  loading: () => <div style={{ minHeight: '200px' }} />,
   ssr: false,
 })
 
 const Footer = dynamic(() => import('@/components/Footer'), {
-  loading: () => <div style={{ minHeight: '100px' }} />,
   ssr: false,
 })
 
@@ -35,10 +32,18 @@ export default function Home() {
     <main>
       <Header />
       <ProductListing />
-      <HowToOrder />
-      <TrustSection />
-      <FAQ />
-      <Footer />
+      <LazySection fallback={<div style={{ minHeight: '200px' }} />}>
+        <HowToOrder />
+      </LazySection>
+      <LazySection fallback={<div style={{ minHeight: '200px' }} />}>
+        <TrustSection />
+      </LazySection>
+      <LazySection fallback={<div style={{ minHeight: '200px' }} />}>
+        <FAQ />
+      </LazySection>
+      <LazySection fallback={<div style={{ minHeight: '100px' }} />}>
+        <Footer />
+      </LazySection>
     </main>
   )
 }

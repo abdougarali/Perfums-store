@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, startTransition } from 'react'
 import { ref, onValue, get } from 'firebase/database'
 import { db } from './firebase'
 
@@ -91,9 +91,12 @@ export function useProducts() {
     productsPromise
       .then((data) => {
         if (mountedRef.current) {
-          setProducts(data)
-          setLoading(false)
-          setError(null)
+          // Use startTransition to defer non-critical updates
+          startTransition(() => {
+            setProducts(data)
+            setLoading(false)
+            setError(null)
+          })
         }
       })
       .catch((err) => {
@@ -169,9 +172,12 @@ export function useStoreConfig() {
     configPromise
       .then((data) => {
         if (mountedRef.current) {
-          setConfig(data)
-          setLoading(false)
-          setError(null)
+          // Use startTransition to defer non-critical updates
+          startTransition(() => {
+            setConfig(data)
+            setLoading(false)
+            setError(null)
+          })
         }
       })
       .catch((err) => {
