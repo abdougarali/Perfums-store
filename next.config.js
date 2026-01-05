@@ -43,7 +43,6 @@ const nextConfig = {
         ...config.optimization,
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
-        usedExports: true, // Enable tree-shaking
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -66,8 +65,6 @@ const nextConfig = {
           },
         },
       }
-      // Mark packages as side-effect free for better tree-shaking
-      config.optimization.sideEffects = false
     }
     return config
   },

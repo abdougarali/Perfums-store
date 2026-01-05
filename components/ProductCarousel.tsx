@@ -1,25 +1,13 @@
 'use client'
 
-import { memo, useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
-import ProductCard from './ProductCard'
-import styles from './ProductCarousel.module.css'
-
-// Import Swiper CSS statically (required for CSS to work)
+import { memo } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-
-// Lazy load Swiper components to reduce initial bundle size
-const Swiper = dynamic(
-  () => import('swiper/react').then(mod => mod.Swiper),
-  { ssr: false }
-)
-
-const SwiperSlide = dynamic(
-  () => import('swiper/react').then(mod => mod.SwiperSlide),
-  { ssr: false }
-)
+import ProductCard from './ProductCard'
+import styles from './ProductCarousel.module.css'
 
 interface Size {
   size: string
@@ -40,33 +28,12 @@ interface ProductCarouselProps {
 }
 
 function ProductCarousel({ products, onSelect }: ProductCarouselProps) {
-  const [modules, setModules] = useState<any>(null)
-  const [isReady, setIsReady] = useState(false)
-
-  useEffect(() => {
-    // Load Swiper modules only when component mounts (CSS is already imported statically)
-    import('swiper/modules').then((modulesMod) => {
-      setModules(modulesMod)
-      setIsReady(true)
-    })
-  }, [])
-
   if (products.length === 0) return null
-
-  if (!isReady || !modules) {
-    return (
-      <div className={styles.carouselContainer}>
-        <div style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid #E8C97A', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className={styles.carouselContainer}>
       <Swiper
-        modules={[modules.Navigation, modules.Pagination]}
+        modules={[Navigation, Pagination]}
         spaceBetween={24}
         slidesPerView={1}
         slidesPerGroup={1}
