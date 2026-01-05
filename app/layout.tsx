@@ -95,13 +95,12 @@ export default function RootLayout({
     <html lang="ar" dir="rtl">
       <head>
         {/* Critical resource hints - Load early */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Google Fonts preconnect is handled by next/font automatically */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
-        {/* Prefetch Firebase domains for faster connection */}
+        {/* Preconnect Firebase domains for faster connection */}
         <link rel="preconnect" href="https://firebase.googleapis.com" />
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}

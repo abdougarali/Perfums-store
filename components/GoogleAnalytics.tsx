@@ -19,14 +19,14 @@ export default function GoogleAnalytics() {
 
   return (
     <>
-      {/* Google Analytics Scripts - Load with lowest priority */}
+      {/* Google Analytics Scripts - Load after page is fully interactive */}
       <Script
-        strategy="lazyOnload"
+        strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
       <Script
         id="google-analytics"
-        strategy="lazyOnload"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
@@ -34,7 +34,10 @@ export default function GoogleAnalytics() {
             gtag('js', new Date());
             gtag('config', '${gaId}', {
               page_path: window.location.pathname,
-              send_page_view: false
+              send_page_view: false,
+              // Performance optimizations
+              transport_type: 'beacon',
+              anonymize_ip: true
             });
           `,
         }}

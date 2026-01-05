@@ -48,45 +48,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'kern' 1;
   text-rendering: optimizeLegibility;
+  /* Simplified background for better performance - removed complex gradients */
   background-image: 
-    /* Light Islamic 8-pointed star pattern - very subtle */
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 120px,
-      rgba(232, 201, 122, 0.008) 120px,
-      rgba(232, 201, 122, 0.008) 122px
-    ),
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 120px,
-      rgba(232, 201, 122, 0.008) 120px,
-      rgba(232, 201, 122, 0.008) 122px
-    ),
-    /* Very light radial gradients */
-    radial-gradient(circle at 20% 30%, rgba(232, 201, 122, 0.015) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(184, 160, 130, 0.015) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(232, 201, 122, 0.008) 0%, transparent 60%);
+    /* Single subtle gradient for better performance */
+    radial-gradient(circle at 50% 50%, rgba(232, 201, 122, 0.01) 0%, transparent 60%);
   background-attachment: fixed;
   position: relative;
 }
 
-/* Very subtle light arabesque pattern overlay */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(232, 201, 122, 0.01) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(184, 160, 130, 0.01) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.3;
-}
+/* Removed body::before for better performance */
 
 a {
   text-decoration: none;
