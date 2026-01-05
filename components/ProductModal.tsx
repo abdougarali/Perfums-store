@@ -165,7 +165,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           onLoad={() => setImageLoading(false)}
           onError={() => setImageLoading(false)}
           priority
-          quality={85}
+          quality={80}
           unoptimized={product.image.startsWith('data:')}
           decoding="async"
         />

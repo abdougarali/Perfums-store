@@ -10,7 +10,7 @@ const cairo = Cairo({
   weight: ['400', '600', '700'],
   variable: '--font-cairo',
   display: 'swap', // Font display optimization - show fallback immediately
-  preload: true,
+  preload: true, // Preload critical fonts
   adjustFontFallback: true, // Better font fallback
   fallback: ['system-ui', 'arial'], // Fast fallback fonts
 })
@@ -100,9 +100,13 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
-        {/* Preconnect Firebase domains for faster connection */}
-        <link rel="preconnect" href="https://firebase.googleapis.com" />
-        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        {/* Preconnect Firebase domains for faster connection - only if Firebase is used */}
+        {process.env.NEXT_PUBLIC_FIREBASE_API_KEY && (
+          <>
+            <link rel="preconnect" href="https://firebase.googleapis.com" />
+            <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+          </>
+        )}
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:url" content={ogImage} />

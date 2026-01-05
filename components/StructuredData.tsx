@@ -9,11 +9,12 @@ import perfumesData from '@/data/perfumes.json'
 export default function StructuredData() {
   useEffect(() => {
     // Use requestIdleCallback for better performance, fallback to setTimeout
+    // Increased timeout to defer loading even more - only load when browser is idle
     const scheduleLoad = (callback: () => void) => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(callback, { timeout: 2000 })
+        requestIdleCallback(callback, { timeout: 5000 }) // Increased from 2000 to 5000ms
       } else {
-        setTimeout(callback, 100)
+        setTimeout(callback, 2000) // Increased from 100ms to 2000ms
       }
     }
 

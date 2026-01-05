@@ -14,8 +14,8 @@ const nextConfig = {
   // Image optimization - optimized for performance
   images: {
     formats: ['image/avif', 'image/webp'], // AVIF is 50% smaller than WebP
-    deviceSizes: [640, 750, 828, 1080, 1200], // Reduced sizes for better performance
-    imageSizes: [16, 32, 48, 64, 96, 128, 256], // Reduced sizes
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920], // Optimized sizes
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // Optimized sizes
     minimumCacheTTL: 31536000, // 1 year
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -43,6 +43,7 @@ const nextConfig = {
         ...config.optimization,
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
+        usedExports: true, // Enable tree-shaking
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -51,20 +52,22 @@ const nextConfig = {
             // Separate Firebase into its own chunk
             firebase: {
               name: 'firebase',
-              chunks: 'all',
+              chunks: 'async', // Only load when needed
               test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
               priority: 20,
             },
             // Separate Swiper into its own chunk
             swiper: {
               name: 'swiper',
-              chunks: 'all',
+              chunks: 'async', // Only load when needed
               test: /[\\/]node_modules[\\/]swiper[\\/]/,
               priority: 20,
             },
           },
         },
       }
+      // Mark packages as side-effect free for better tree-shaking
+      config.optimization.sideEffects = false
     }
     return config
   },
@@ -93,7 +96,7 @@ const nextConfig = {
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, must-revalidate'
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800'
           },
         ],
       },
