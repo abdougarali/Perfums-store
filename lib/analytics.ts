@@ -41,16 +41,26 @@ export const trackEvent = (
     return
   }
 
-  try {
-    window.gtag?.('event', eventName, {
-      ...eventParams,
-      // Add timestamp for better tracking
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    // Silently fail to avoid breaking the app
-    console.warn('Analytics tracking error:', error)
+  // Use requestIdleCallback to avoid blocking main thread
+  const scheduleTrack = (callback: () => void) => {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(callback, { timeout: 1000 })
+    } else {
+      setTimeout(callback, 0)
+    }
   }
+
+  scheduleTrack(() => {
+    try {
+      window.gtag?.('event', eventName, {
+        ...eventParams,
+        // Remove timestamp to reduce payload size
+      })
+    } catch (error) {
+      // Silently fail to avoid breaking the app
+      console.warn('Analytics tracking error:', error)
+    }
+  })
 }
 
 /**

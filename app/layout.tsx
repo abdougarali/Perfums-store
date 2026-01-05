@@ -117,9 +117,10 @@ export default function RootLayout({
         <meta name="twitter:image:alt" content={storeConfig.storeName} />
       </head>
       <body className={cairo.variable}>
+        {children}
+        {/* Load non-critical components after initial render */}
         <StructuredData />
         <GoogleAnalytics />
-        {children}
       </body>
     </html>
   )

@@ -27,6 +27,7 @@ function ProductListing() {
   
   // Use static data immediately, then update with Firebase data when available
   // This improves initial page load performance
+  // Memoize to prevent unnecessary re-renders
   const { perfumesData, gridProducts, carouselProducts } = useMemo(() => {
     // Start with static data for immediate render
     let allProducts = perfumesDataStatic as Product[]
@@ -36,11 +37,8 @@ function ProductListing() {
       allProducts = productsFromFirebase
     }
     
-    // Filter: Only show active products
-    const filtered = allProducts.filter(product => {
-      if (product.active === false) return false
-      return true
-    })
+    // Filter: Only show active products - use more efficient filter
+    const filtered = allProducts.filter(product => product.active !== false)
     
     return {
       perfumesData: filtered,

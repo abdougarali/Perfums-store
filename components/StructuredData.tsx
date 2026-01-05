@@ -5,14 +5,15 @@ import storeConfig from '@/data/store-config.json'
 import perfumesData from '@/data/perfumes.json'
 
 // Load structured data after initial render to not block LCP
+// Defer to avoid blocking main thread
 export default function StructuredData() {
   useEffect(() => {
-    // Use requestIdleCallback for better performance, fallback to setTimeout
+    // Use requestIdleCallback with longer delay for better performance
     const scheduleLoad = (callback: () => void) => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(callback, { timeout: 2000 })
+        requestIdleCallback(callback, { timeout: 5000 }) // Increased timeout
       } else {
-        setTimeout(callback, 100)
+        setTimeout(callback, 2000) // Increased delay for setTimeout fallback
       }
     }
 
