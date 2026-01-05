@@ -8,12 +8,12 @@ import perfumesData from '@/data/perfumes.json'
 // Defer to avoid blocking main thread
 export default function StructuredData() {
   useEffect(() => {
-    // Use requestIdleCallback with longer delay for better performance
+    // Use requestIdleCallback for better performance, fallback to setTimeout
     const scheduleLoad = (callback: () => void) => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(callback, { timeout: 5000 }) // Increased timeout
+        requestIdleCallback(callback, { timeout: 2000 })
       } else {
-        setTimeout(callback, 2000) // Increased delay for setTimeout fallback
+        setTimeout(callback, 100)
       }
     }
 

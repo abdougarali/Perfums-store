@@ -43,39 +43,24 @@ const nextConfig = {
         ...config.optimization,
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
-        usedExports: true, // Enable tree-shaking
-        sideEffects: false, // Mark as side-effect free for better tree-shaking
         splitChunks: {
           chunks: 'all',
-          maxInitialRequests: 25,
-          minSize: 20000,
           cacheGroups: {
             default: false,
             vendors: false,
-            // Separate Firebase into its own chunk - lazy load
+            // Separate Firebase into its own chunk
             firebase: {
               name: 'firebase',
-              chunks: 'async', // Only load when needed
+              chunks: 'all',
               test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
               priority: 20,
-              reuseExistingChunk: true,
             },
-            // Separate Swiper into its own chunk - lazy load
+            // Separate Swiper into its own chunk
             swiper: {
               name: 'swiper',
-              chunks: 'async', // Only load when needed
+              chunks: 'all',
               test: /[\\/]node_modules[\\/]swiper[\\/]/,
               priority: 20,
-              reuseExistingChunk: true,
-            },
-            // Common vendor chunk
-            vendor: {
-              name: 'vendor',
-              chunks: 'all',
-              test: /[\\/]node_modules[\\/]/,
-              priority: 10,
-              minChunks: 2,
-              reuseExistingChunk: true,
             },
           },
         },
@@ -108,7 +93,7 @@ const nextConfig = {
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400'
+            value: 'public, max-age=3600, must-revalidate'
           },
         ],
       },
