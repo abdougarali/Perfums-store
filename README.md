@@ -156,5 +156,7 @@ perfume-store-mvp/
 
 ## 📞 الدعم
 
-راجع `QUICK_START.md` لدليل التخصيص السريع.
+- **للمطورين الجدد**: راجع `DEVELOPER_DOCUMENTATION.md` للتوثيق الشامل
+- **للبدء السريع**: راجع `QUICK_START_GUIDE.md` للبدء في 5 دقائق
+- **للتخصيص**: راجع `QUICK_START.md` لدليل التخصيص السريع
 

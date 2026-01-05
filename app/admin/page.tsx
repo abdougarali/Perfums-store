@@ -8,6 +8,8 @@ import type { Product } from '@/lib/useFirebaseData'
 import type { StoreConfig } from '@/lib/config'
 import perfumesDataStatic from '@/data/perfumes.json'
 import storeConfigStatic from '@/data/store-config.json'
+import { simpleAuth } from '@/lib/simpleAuth'
+import SimpleLogin from '@/components/SimpleLogin'
 
 // Extended Product type with additional fields
 interface ExtendedProduct extends Product {
@@ -17,6 +19,7 @@ interface ExtendedProduct extends Product {
 }
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [products, setProducts] = useState<ExtendedProduct[]>([])
   const [config, setConfig] = useState<StoreConfig | null>(null)
   const [loading, setLoading] = useState(true)
@@ -35,59 +38,11 @@ export default function AdminPage() {
 
   const ITEMS_PER_PAGE = 3
 
-  // Helper function to calculate Base64 image size
-  const getImageSize = (imageString: string): { sizeKB: number; sizeMB: number; isBase64: boolean } => {
-    if (!imageString) return { sizeKB: 0, sizeMB: 0, isBase64: false }
-    
-    if (imageString.startsWith('data:')) {
-      // Base64 image: calculate size from base64 string
-      const base64String = imageString.split(',')[1] || ''
-      const sizeInBytes = (base64String.length * 3) / 4
-      const sizeKB = sizeInBytes / 1024
-      const sizeMB = sizeKB / 1024
-      return { sizeKB, sizeMB, isBase64: true }
-    }
-    
-    return { sizeKB: 0, sizeMB: 0, isBase64: false }
-  }
-
-  // Load data on mount
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  // Auto-hide toast after 3 seconds
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [toast])
-
-  // Debounce search query
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery)
-    }, 300)
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
-      }
-    }
-  }, [searchQuery])
-
-  // Reset to page 1 when search or filter changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [debouncedSearchQuery, filterActive])
-
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })
   }
 
+  // Load data function
   const loadData = async () => {
     try {
       const [productsRes, configRes] = await Promise.all([
@@ -138,8 +93,6 @@ export default function AdminPage() {
       } else {
         setConfig(storeConfigStatic as StoreConfig)
       }
-      
-      setLoading(false)
     } catch (error) {
       console.error('Error loading data:', error)
       setProducts((perfumesDataStatic as Product[]).map((p, index) => ({
@@ -147,11 +100,77 @@ export default function AdminPage() {
         active: true,
         order: index,
         category: 'عام',
-      })))
+      })) as ExtendedProduct[])
       setConfig(storeConfigStatic as StoreConfig)
+    } finally {
       setLoading(false)
     }
   }
+
+  // Check authentication on mount
+  useEffect(() => {
+    setIsAuthenticated(simpleAuth.isAuthenticated())
+    if (simpleAuth.isAuthenticated()) {
+      loadData()
+    } else {
+      setLoading(false)
+    }
+  }, [])
+
+  // Handle logout
+  const handleLogout = useCallback(() => {
+    simpleAuth.logout()
+    setIsAuthenticated(false)
+    showToast('تم تسجيل الخروج بنجاح', 'success')
+    setTimeout(() => {
+      window.location.reload()
+    }, 500)
+  }, [])
+
+  // Helper function to calculate Base64 image size
+  const getImageSize = (imageString: string): { sizeKB: number; sizeMB: number; isBase64: boolean } => {
+    if (!imageString) return { sizeKB: 0, sizeMB: 0, isBase64: false }
+    
+    if (imageString.startsWith('data:')) {
+      // Base64 image: calculate size from base64 string
+      const base64String = imageString.split(',')[1] || ''
+      const sizeInBytes = (base64String.length * 3) / 4
+      const sizeKB = sizeInBytes / 1024
+      const sizeMB = sizeKB / 1024
+      return { sizeKB, sizeMB, isBase64: true }
+    }
+    
+    return { sizeKB: 0, sizeMB: 0, isBase64: false }
+  }
+
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  // Debounce search query
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery])
+
+  // Reset to page 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearchQuery, filterActive])
 
   const saveProducts = async () => {
     setSaving(true)
@@ -636,6 +655,11 @@ export default function AdminPage() {
     return { total, active, inactive, totalSizes }
   }, [products])
 
+  // Show login if not authenticated
+  if (!isAuthenticated && !loading) {
+    return <SimpleLogin />
+  }
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -666,6 +690,12 @@ export default function AdminPage() {
           <a href="/" target="_blank" className={styles.viewSiteButton}>
             👁️ عرض الموقع
           </a>
+          <button onClick={handleLogout} className={styles.logoutButton}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>تسجيل الخروج</span>
+          </button>
         </div>
       </header>
 

@@ -121,6 +121,34 @@
   border-color: rgba(232, 201, 122, 0.5);
 }
 
+.logoutButton {
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: var(--transition);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.logoutButton:hover {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.3);
+  color: #dc3545;
+  transform: translateY(-2px);
+}
+
+.logoutButton svg {
+  flex-shrink: 0;
+}
+
 /* ============================================
    Tabs
    ============================================ */
