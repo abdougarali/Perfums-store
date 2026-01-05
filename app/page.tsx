@@ -9,6 +9,7 @@ const ProductListing = dynamic(() => import('@/components/ProductListing'), {
   ssr: true, // Enable SSR for ProductListing (critical above the fold)
 })
 
+// Lazy load below-the-fold components with intersection observer
 const HowToOrder = dynamic(() => import('@/components/HowToOrder'), {
   loading: () => <div style={{ minHeight: '200px' }} />,
   ssr: false,

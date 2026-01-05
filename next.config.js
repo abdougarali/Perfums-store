@@ -22,6 +22,9 @@ const nextConfig = {
     // Allow Base64 images (for Firebase storage)
     remotePatterns: [],
     unoptimized: false, // Keep optimization enabled for regular images
+    // Performance optimizations
+    quality: 75, // Default quality (can be overridden per image)
+    loading: 'lazy', // Default lazy loading
   },
 
   // Compression
@@ -29,6 +32,12 @@ const nextConfig = {
   
   // Production optimizations
   swcMinify: true,
+  
+  // Experimental features for better performance
+  experimental: {
+    optimizeCss: true, // Optimize CSS
+    optimizePackageImports: ['swiper'], // Tree-shake Swiper imports
+  },
 
   // Headers for caching and security
   async headers() {

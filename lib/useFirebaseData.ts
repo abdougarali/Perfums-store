@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { ref, onValue, get } from 'firebase/database'
 import { db } from './firebase'
 
@@ -22,10 +22,17 @@ interface StoreConfig {
   generalWhatsAppMessage?: string
 }
 
+// Cache Firebase data in memory to avoid redundant requests
+let cachedProducts: Product[] | null = null
+let cachedConfig: StoreConfig | null = null
+let productsPromise: Promise<Product[]> | null = null
+let configPromise: Promise<StoreConfig | null> | null = null
+
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const mountedRef = useRef(true)
 
   useEffect(() => {
     // Check if Firebase is configured and available
@@ -35,28 +42,70 @@ export function useProducts() {
       return
     }
 
+    // Return cached data immediately if available
+    if (cachedProducts) {
+      setProducts(cachedProducts)
+      setLoading(false)
+      return
+    }
+
+    // Reuse existing promise if already fetching
+    if (productsPromise) {
+      productsPromise
+        .then((data) => {
+          if (mountedRef.current) {
+            setProducts(data)
+            setLoading(false)
+            setError(null)
+          }
+        })
+        .catch((err) => {
+          if (mountedRef.current) {
+            console.error('Error fetching products:', err)
+            setError('Failed to load products')
+            setLoading(false)
+          }
+        })
+      return
+    }
+
+    // Create new fetch promise
     const productsRef = ref(db, 'products')
-    
-    // Use get() for initial load (faster, no real-time listener overhead)
-    // This is much faster than onValue() for one-time data fetching
-    get(productsRef)
+    productsPromise = get(productsRef)
       .then((snapshot) => {
         const data = snapshot.val()
+        let productsArray: Product[] = []
         if (data) {
           // Convert object to array if needed
-          const productsArray = Array.isArray(data) ? data : Object.values(data)
-          setProducts(productsArray as Product[])
-        } else {
-          setProducts([])
+          productsArray = Array.isArray(data) ? data : Object.values(data)
         }
-        setLoading(false)
-        setError(null)
+        // Cache the result
+        cachedProducts = productsArray
+        return productsArray
       })
       .catch((error) => {
         console.error('Error fetching products:', error)
-        setError('Failed to load products')
-        setLoading(false)
+        throw error
       })
+
+    productsPromise
+      .then((data) => {
+        if (mountedRef.current) {
+          setProducts(data)
+          setLoading(false)
+          setError(null)
+        }
+      })
+      .catch((err) => {
+        if (mountedRef.current) {
+          setError('Failed to load products')
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   return { products, loading, error }
@@ -66,6 +115,7 @@ export function useStoreConfig() {
   const [config, setConfig] = useState<StoreConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const mountedRef = useRef(true)
 
   useEffect(() => {
     // Check if Firebase is configured and available
@@ -75,21 +125,65 @@ export function useStoreConfig() {
       return
     }
 
+    // Return cached data immediately if available
+    if (cachedConfig) {
+      setConfig(cachedConfig)
+      setLoading(false)
+      return
+    }
+
+    // Reuse existing promise if already fetching
+    if (configPromise) {
+      configPromise
+        .then((data) => {
+          if (mountedRef.current) {
+            setConfig(data)
+            setLoading(false)
+            setError(null)
+          }
+        })
+        .catch((err) => {
+          if (mountedRef.current) {
+            console.error('Error fetching config:', err)
+            setError('Failed to load config')
+            setLoading(false)
+          }
+        })
+      return
+    }
+
+    // Create new fetch promise
     const configRef = ref(db, 'config')
-    
-    // Use get() for initial load (faster, no real-time listener overhead)
-    get(configRef)
+    configPromise = get(configRef)
       .then((snapshot) => {
-        const data = snapshot.val()
-        setConfig(data as StoreConfig)
-        setLoading(false)
-        setError(null)
+        const data = snapshot.val() as StoreConfig | null
+        // Cache the result
+        cachedConfig = data
+        return data
       })
       .catch((error) => {
         console.error('Error fetching config:', error)
-        setError('Failed to load config')
-        setLoading(false)
+        throw error
       })
+
+    configPromise
+      .then((data) => {
+        if (mountedRef.current) {
+          setConfig(data)
+          setLoading(false)
+          setError(null)
+        }
+      })
+      .catch((err) => {
+        if (mountedRef.current) {
+          setError('Failed to load config')
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   return { config, loading, error }

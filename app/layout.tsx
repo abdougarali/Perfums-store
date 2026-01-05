@@ -99,6 +99,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://wa.me" />
+        <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
         {/* Additional Open Graph meta tags for better WhatsApp/Facebook support */}
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:url" content={ogImage} />
