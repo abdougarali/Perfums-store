@@ -40,8 +40,6 @@ function ProductCarousel({ products, onSelect }: ProductCarouselProps) {
         navigation
         pagination={{ clickable: true }}
         initialSlide={6} // Start at slide number 7 (0-indexed)
-        lazy={true} // Enable lazy loading for images
-        watchSlidesProgress={true} // Required for lazy loading
         breakpoints={{
           640: {
             slidesPerView: 2,
