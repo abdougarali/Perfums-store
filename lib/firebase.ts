@@ -16,9 +16,12 @@ const isFirebaseConfigured = () => {
   )
 }
 
-// Initialize Firebase only if configured
-// Defer initialization to reduce initial bundle impact
-if (typeof window !== 'undefined' && isFirebaseConfigured()) {
+// Initialize Firebase function - works on both server and client
+const initializeFirebase = () => {
+  if (!isFirebaseConfigured()) {
+    return
+  }
+
   try {
     // Use existing app if available
     if (getApps().length === 0) {
@@ -49,9 +52,29 @@ if (typeof window !== 'undefined' && isFirebaseConfigured()) {
   }
 }
 
+// Initialize Firebase immediately for server-side (API routes)
+// For client-side, we can defer initialization to reduce bundle impact
+if (typeof window === 'undefined') {
+  // Server-side: Initialize immediately
+  initializeFirebase()
+} else {
+  // Client-side: Initialize immediately (needed for API calls from client)
+  initializeFirebase()
+}
+
 export { db, storage }
 
 // Helper function to check if Firebase is available
+// This will also try to initialize Firebase if not already initialized
 export const isFirebaseAvailable = () => {
-  return isFirebaseConfigured() && db !== null
+  if (!isFirebaseConfigured()) {
+    return false
+  }
+  
+  // If Firebase is configured but not initialized, try to initialize it
+  if (db === null) {
+    initializeFirebase()
+  }
+  
+  return db !== null
 }

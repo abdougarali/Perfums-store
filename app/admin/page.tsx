@@ -373,9 +373,27 @@ export default function AdminPage() {
   }, [])
 
   const toggleProductActive = useCallback((index: number) => {
+    console.log('[toggleProductActive] Toggling product at index:', index)
     setProducts(prev => {
-      const updated = [...prev]
-      updated[index].active = !updated[index].active
+      if (index < 0 || index >= prev.length) {
+        console.error('[toggleProductActive] Invalid index:', index, 'Products length:', prev.length)
+        return prev
+      }
+      
+      // Create a completely new array with new objects to ensure React detects the change
+      const updated = prev.map((p, i) => {
+        if (i === index) {
+          const currentActive = p.active !== false // true if active is true or undefined
+          const newActive = !currentActive
+          console.log('[toggleProductActive] Before toggle - active:', p.active, 'product id:', p.id, 'newActive:', newActive)
+          // Return a completely new object
+          return { ...p, active: newActive }
+        }
+        return p
+      })
+      
+      console.log('[toggleProductActive] After toggle - updated product active:', updated[index].active)
+      console.log('[toggleProductActive] Full updated array length:', updated.length)
       return updated
     })
   }, [])
@@ -874,8 +892,12 @@ export default function AdminPage() {
                 {/* Paginated Products */}
                 {paginatedProducts.map((product, index) => {
                 const originalIndex = products.findIndex(p => p.id === product.id)
+                // Get the actual product from the products array to ensure we have the latest state
+                const actualProduct = originalIndex >= 0 ? products[originalIndex] : product
+                // Use a key that includes the active state to force re-render when it changes
+                const productKey = `${product.id}-${actualProduct.active !== false ? 'active' : 'inactive'}`
                 return (
-                  <div key={product.id || index} id={`product-${product.id}`} className={styles.productCard}>
+                  <div key={productKey} id={`product-${product.id}`} className={styles.productCard}>
                     <div className={styles.productCardHeader}>
                       <div className={styles.productCardHeaderLeft}>
                         <div className={styles.productOrderControls}>
@@ -911,12 +933,21 @@ export default function AdminPage() {
                         <label className={styles.toggleSwitch}>
                           <input
                             type="checkbox"
-                            checked={product.active !== false}
-                            onChange={() => toggleProductActive(originalIndex)}
+                            checked={actualProduct.active !== false}
+                            onChange={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              console.log('[Checkbox] onChange triggered for product:', actualProduct.id, 'originalIndex:', originalIndex, 'current active:', actualProduct.active)
+                              if (originalIndex >= 0) {
+                                toggleProductActive(originalIndex)
+                              } else {
+                                console.error('[Checkbox] Invalid originalIndex:', originalIndex)
+                              }
+                            }}
                           />
                           <span className={styles.toggleSlider}></span>
                           <span className={styles.toggleLabel}>
-                            {product.active !== false ? 'نشط' : 'غير نشط'}
+                            {actualProduct.active !== false ? 'نشط' : 'غير نشط'}
                           </span>
                         </label>
                         <button
